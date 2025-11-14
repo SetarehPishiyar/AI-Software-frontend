@@ -142,7 +142,7 @@ const Header = () => {
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase
-            placeholder="جستجو در فودی"
+            placeholder="جستجو در یامزی"
             inputProps={{ "aria-label": "search" }}
             value={searchTerm}
             onChange={handleSearchChange}

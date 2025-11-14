@@ -26,8 +26,8 @@ h5 {
 
 /* Buttons Styling */
 button.MuiButton-root {
-	background-color: #d68240;
-	color: white;
+	background-color: #ADBC9F;
+	color: #12372A;
 	font-size: 16px !important;
 	font-weight: bold;
 	padding: 10px;
@@ -39,7 +39,7 @@ button.MuiButton-root {
 
 button.MuiButton-root:hover {
 	box-shadow: none;
-	background-color: #F4DCC9;
+	background-color: #FBFADA;
 }
 
 /* TextField Styling */
@@ -69,10 +69,10 @@ button.MuiButton-root:hover {
 	transition: color 0.2s;
 }
 
-.MuiTypography-root:hover,
+/* .MuiTypography-root:hover,
 .MuiTypography-root:hover {
-	color: #eead7a;
-}
+	color: #ADBC9F;
+} */
 
 /* TextField Styling */
 .MuiInput-underline:before {
