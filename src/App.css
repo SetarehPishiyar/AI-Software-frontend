@@ -1,0 +1,96 @@
+.app-container {
+	/* display: flex; */
+	justify-content: center;
+	align-items: center;
+	background-color: white;
+	font-family: "Vazir", sans-serif;
+}
+
+/* Container Styling */
+.login-container,
+.signup-container {
+	width: 410px;
+	padding: 30px;
+	background: white;
+	border-radius: 12px;
+	text-align: center;
+	margin: auto;
+}
+
+/* Typography Styling */
+h5 {
+	color: #333;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+
+/* Buttons Styling */
+button.MuiButton-root {
+	background-color: #d68240;
+	color: white;
+	font-size: 16px !important;
+	font-weight: bold;
+	padding: 10px;
+	border-radius: 8px;
+	margin-top: 20px;
+	margin-bottom: 10px;
+	box-shadow: none;
+}
+
+button.MuiButton-root:hover {
+	box-shadow: none;
+	background-color: #F4DCC9;
+}
+
+/* TextField Styling */
+.MuiOutlinedInput-root {
+	border-radius: 8px !important;
+}
+
+.MuiFormLabel-root {
+	color: #888 !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+	border-color: #ddd 
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+	border-color: #d68240 !important;
+}
+
+/* Links Styling */
+.signup-container .MuiTypography-root,
+.login-container .MuiTypography-root {
+	margin-top: 15px;
+	color: #d68240;
+	font-size: 14px;
+	cursor: pointer;
+	transition: color 0.2s;
+}
+
+.MuiTypography-root:hover,
+.MuiTypography-root:hover {
+	color: #eead7a;
+}
+
+/* TextField Styling */
+.MuiInput-underline:before {
+	border-bottom: 1px solid #ddd !important;
+}
+
+.MuiInput-underline:hover:before {
+	border-bottom: 1px solid #eead7a !important;
+}
+
+.MuiInput-underline.Mui-focused:before {
+	border-bottom: 2px solid #eead7a !important;
+}
+
+.MuiInput-underline.Mui-focused:after {
+	border-bottom: 2px solid #eead7a !important;
+}
+
+.MuiAccordionSummary-expandIconWrapper {
+	margin-right: 20px;
+}
