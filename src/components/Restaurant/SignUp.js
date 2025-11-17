@@ -126,12 +126,16 @@ function SignUp() {
       <img
         src={YumziImg}
         alt="Login Illustration"
-        style={{ width: "50%", marginBottom: "20px", marginTop: "60px" }}
+        style={{ width: "250px", marginBottom: "10px", marginTop: "20px" }}
       />
 
       <Divider />
 
-      <FormControl fullWidth variant="standard" sx={{ marginTop: "30px" }}>
+      <FormControl
+        fullWidth
+        variant="standard"
+        sx={{ marginTop: "30px", width: "50%" }}
+      >
         <InputLabel>نوع کسب و کار</InputLabel>
         <Select
           value={businessType}
@@ -146,7 +150,11 @@ function SignUp() {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth variant="standard" sx={{ marginTop: "30px" }}>
+      <FormControl
+        fullWidth
+        variant="standard"
+        sx={{ marginTop: "30px", width: "50%" }}
+      >
         <InputLabel> نام استان</InputLabel>
         <Select
           value={provinceName}
@@ -187,7 +195,10 @@ function SignUp() {
         </Select>
       </FormControl>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }} marginBottom={0.9}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "52%" }}
+        marginBottom={0.9}
+      >
         <StoreIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <TextField
           fullWidth
@@ -201,7 +212,10 @@ function SignUp() {
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }} marginBottom={0.9}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "52%" }}
+        marginBottom={0.9}
+      >
         <PhoneEnabledIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <TextField
           fullWidth
@@ -215,7 +229,7 @@ function SignUp() {
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+      <Box sx={{ display: "flex", alignItems: "flex-end", width: "52%" }}>
         <KeyIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <FormControl
           sx={{ m: 1 }}
@@ -248,7 +262,7 @@ function SignUp() {
         </FormControl>
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+      <Box sx={{ display: "flex", alignItems: "flex-end", width: "52%" }}>
         <KeyIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <FormControl
           sx={{ m: 1 }}
@@ -289,30 +303,31 @@ function SignUp() {
       <Button
         variant="contained"
         color="primary"
-        fullWidth
-        style={{ marginTop: "20px" }}
+        style={{ marginTop: "20px",width:"150px", mb:3 }}
         onClick={handleSubmit}
       >
         ثبت‌نام
       </Button>
 
-      <Typography
-        variant="body2"
-        display={"inline"}
-        style={{ marginTop: "15px", color: "#616161" }}
-      >
-        حساب کاربری دارید؟
-      </Typography>
+      <Box>
+        <Typography
+          variant="body2"
+          display={"inline"}
+          style={{ marginTop: "15px", color: "#616161" }}
+        >
+          حساب کاربری دارید؟
+        </Typography>
 
-      <Typography
-        variant="body2"
-        display={"inline"}
-        style={{ marginTop: "15px", marginRight: "10px", cursor: "pointer" }}
-        onClick={handleLoginClick}
-        sx={{ pointerEvents: "auto" }}
-      >
-        وارد شوید
-      </Typography>
+        <Typography
+          variant="body2"
+          display={"inline"}
+          style={{ marginTop: "15px", marginRight: "10px", cursor: "pointer" }}
+          onClick={handleLoginClick}
+          sx={{ pointerEvents: "auto", color:"#fff !important" }}
+        >
+          وارد شوید
+        </Typography>
+      </Box>
     </div>
   );
 }
