@@ -12,6 +12,7 @@ import Header from "./components/User/Header";
 import UserSignUp from "./components/User/SignUp";
 import RestaurantSignUp from "./components/Restaurant/SignUp";
 import UserProvider from "./contexts/UserContext";
+import CustomerProfile from "./components/User/profile";
 
 function App() {
   function isAuthenticated() {
@@ -38,6 +39,16 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/customer/signup" element={<UserSignUp />} />
               <Route path="/restuarant/signup" element={<RestaurantSignUp />} />
+              <Route
+                path="/customer/profile"
+                element={
+                  isAuthenticated() ? (
+                    <CustomerProfile />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
             </Routes>
           </Router>
         </UserProvider>
