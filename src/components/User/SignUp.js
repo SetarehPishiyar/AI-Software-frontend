@@ -116,11 +116,14 @@ function SignUp() {
       <img
         src={YumziImg}
         alt="Login Illustration"
-        style={{ width: "50%", marginBottom: "20px" }}
+        style={{ width: "250px", marginBottom: "20px" }}
       />
       <Divider />
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }} marginBottom={0.9}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
+        marginBottom={0.9}
+      >
         <PermIdentityIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <TextField
           fullWidth
@@ -134,7 +137,10 @@ function SignUp() {
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }} marginBottom={0.9}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
+        marginBottom={0.9}
+      >
         <PersonIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <TextField
           fullWidth
@@ -148,7 +154,10 @@ function SignUp() {
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }} marginBottom={0.9}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
+        marginBottom={0.9}
+      >
         <PhoneEnabledIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <TextField
           fullWidth
@@ -162,7 +171,10 @@ function SignUp() {
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "51%" }}
+        marginBottom={0.9}
+      >
         <KeyIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
           <InputLabel htmlFor="standard-adornment-password">رمزعبور</InputLabel>
@@ -189,7 +201,7 @@ function SignUp() {
         </FormControl>
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+      <Box sx={{ display: "flex", alignItems: "flex-end", width: "51%" }}>
         <KeyIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
         <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
           <InputLabel htmlFor="standard-adornment-password">
@@ -226,29 +238,31 @@ function SignUp() {
         variant="contained"
         color="primary"
         fullWidth
-        style={{ marginTop: "20px" }}
+        style={{ marginTop: "20px", width: "150px" }}
         onClick={handleSubmit}
       >
         ثبت‌نام
       </Button>
 
-      <Typography
-        variant="body2"
-        display={"inline"}
-        style={{ marginTop: "15px", color: "#616161" }}
-      >
-        حساب کاربری دارید؟
-      </Typography>
+      <Box>
+        <Typography
+          variant="body2"
+          display={"inline"}
+          style={{ marginTop: "15px", color: "#616161" }}
+        >
+          حساب کاربری دارید؟
+        </Typography>
 
-      <Typography
-        variant="body2"
-        display={"inline"}
-        style={{ marginTop: "15px", marginRight: "10px", cursor: "pointer" }}
-        onClick={handleLoginClick}
-        sx={{ pointerEvents: "auto" }}
-      >
-        وارد شوید
-      </Typography>
+        <Typography
+          variant="body2"
+          display={"inline"}
+          style={{ marginTop: "15px", marginRight: "10px", cursor: "pointer" }}
+          onClick={handleLoginClick}
+          sx={{ pointerEvents: "auto", color: "#fff !important" }}
+        >
+          وارد شوید
+        </Typography>
+      </Box>
     </div>
   );
 }
