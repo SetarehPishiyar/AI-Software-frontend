@@ -17,6 +17,7 @@ import cafeImg from "../../assets/imgs/cafe.png";
 import sweetsImg from "../../assets/imgs/sweets.png";
 import iceCreamImg from "../../assets/imgs/ice_cream.png";
 import bakeryImg from "../../assets/imgs/bakery.png";
+import storeImg from "../../assets/imgs/stores.png";
 import { FavoriteBorder, Favorite, Star } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utills/axiosInstance";
@@ -36,14 +37,14 @@ const HeroSection = () => (
   >
     <Grid
       container
-      spacing={2}
+      spacing={15}
       alignItems="center"
       justifyContent="center"
       direction={{ xs: "column", sm: "row" }}
       sx={{
         width: "100%",
         maxWidth: "1200px",
-        px: 2,
+        pt: 5,
       }}
     >
       <Grid item xs={12} sm={6}>
@@ -64,6 +65,7 @@ const HeroSection = () => (
             color: "#FBFADA",
             fontWeight: "bold",
             mt: 2,
+            pl: 5,
             textAlign: { xs: "center", sm: "left" },
             fontSize: { xs: "1.5rem", md: "2.1rem" },
           }}
@@ -92,8 +94,9 @@ const Section = ({ children }) => (
   <Box
     sx={{
       width: "100%",
-      minHeight: "100vh",
+      minHeight: "80vh",
       overflowX: "hidden",
+      backgroundColor: "#ADBC9F",
       overflowY: "auto",
       "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari
       scrollbarWidth: "none", // Firefox
@@ -134,11 +137,10 @@ const CategoryCards = () => {
         "-ms-overflow-style": "none",
       }}
     >
-      {/* عنوان بالای سکشن */}
       <Typography
         variant="h2"
         sx={{
-          mb: 4,
+          mb: 1,
           textAlign: "center",
           color: "#12372A",
           fontWeight: "bold",
@@ -147,13 +149,12 @@ const CategoryCards = () => {
         دسته بندی‌ها
       </Typography>
 
-      {/* Wrapper کارت‌ها برای وسط چین عمودی و افقی */}
       <Box
         sx={{
           display: "flex",
-          justifyContent: "center", // وسط افقی
-          alignItems: "center", // وسط عمودی
-          flexGrow: 1, // تمام فضای باقی مانده
+          justifyContent: "center",
+          alignItems: "center",
+          flexGrow: 1,
           gap: 3,
         }}
       >
@@ -163,6 +164,7 @@ const CategoryCards = () => {
             onClick={() => handleCategoryClick(category.type)}
             sx={{
               cursor: "pointer",
+              color: "#12372A",
               textAlign: "center",
               borderRadius: "20px",
               boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
@@ -173,7 +175,7 @@ const CategoryCards = () => {
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              padding: "15px", // پدینگ داخلی کارت
+              padding: "15px",
               "&:hover": {
                 transform: "scale(1.1)",
                 border: "2px solid #12372A",
@@ -200,7 +202,6 @@ const CategoryCards = () => {
     </Box>
   );
 };
-
 
 const ProductSlider = () => {
   const navigate = useNavigate();
@@ -275,29 +276,18 @@ const ProductSlider = () => {
 
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ m: 2, mt: 4 }}
+      <Typography
+        variant="h2"
+        sx={{
+          pt: 5,
+          textAlign: "center",
+          color: "#FBFADA",
+          fontWeight: "bold",
+          backgroundColor: "#12372A",
+        }}
       >
-        <Typography variant="h2" sx={{ color: "#12372A", fontWeight: "bold" }}>
-          محبوب ترین ها
-        </Typography>
-        <Button
-          variant="text"
-          sx={{
-            color: "#12372A",
-            backgroundColor: "transparent",
-            fontWeight: "bold",
-            fontSize: "14px",
-            textDecoration: "underline",
-          }}
-          onClick={() => navigate(`/search?name=`)}
-        >
-          مشاهده همه
-        </Button>
-      </Box>
+        محبوب ترین ها
+      </Typography>
       <Grid
         container
         spacing={1}
@@ -313,10 +303,158 @@ const ProductSlider = () => {
               m: 1,
               minWidth: 230,
               borderRadius: "20px",
+              backgroundColor: "#FBFADA",
               boxShadow: 0,
               "&:hover": {
-                transform: "scale(1.05)",
-                border: "2px solid #D68240",
+                transform: "scale(1.1)",
+                border: "2px solid #12372A",
+              },
+            }}
+          >
+            <CardMedia
+              component="img"
+              height="140"
+              image={
+                r.photo
+                  ? `http://127.0.0.1:8000${r.photo}`
+                  : "https://via.placeholder.com/120"
+              }
+              alt={r.name}
+            />
+            <CardContent>
+              <Typography variant="h6">{r.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                <Star sx={{ pt: "12px" }} /> امتیاز: {r.score}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                هزینه ارسال: {Math.floor(parseFloat(r.delivery_price))} تومان
+              </Typography>
+            </CardContent>
+            <IconButton
+              sx={{ position: "absolute", top: 8, right: 8 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(r.id);
+              }}
+            >
+              {favorites[r.id] ? (
+                <Favorite sx={{ color: "red" }} />
+              ) : (
+                <FavoriteBorder />
+              )}
+            </IconButton>
+          </Card>
+        ))}
+      </Grid>
+    </Box>
+  );
+};
+
+const RecommendedProductSlider = () => {
+  const navigate = useNavigate();
+  const [restaurants, setRestaurants] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [favorites, setFavorites] = useState({});
+
+  const checkAuthentication = () => {
+    const accessToken = localStorage.getItem("access");
+    const refreshToken = localStorage.getItem("refresh");
+    setIsLoggedIn(!!(accessToken && refreshToken));
+  };
+
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const response = await publicAxiosInstance.get("/restaurant/profiles");
+        const sortedRestaurants = response.data.restaurants.sort(
+          (a, b) => b.score - a.score
+        );
+        setRestaurants(sortedRestaurants);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchFavorites = async () => {
+      if (isLoggedIn) {
+        try {
+          const response = await axiosInstance.get("/customer/favorites");
+          const favoriteMap = {};
+          response.data.forEach((fav) => {
+            favoriteMap[fav.restaurant] = true;
+          });
+          setFavorites(favoriteMap);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    fetchRestaurants();
+    fetchFavorites();
+  }, [isLoggedIn]);
+
+  const toggleFavorite = async (restaurantId) => {
+    if (!isLoggedIn) {
+      alert("ابتدا وارد حساب شوید.");
+      return;
+    }
+    const isFav = favorites[restaurantId];
+    try {
+      if (isFav) {
+        await axiosInstance.delete("/customer/favorites", {
+          params: { restaurant_id: restaurantId },
+        });
+        setFavorites((prev) => ({ ...prev, [restaurantId]: false }));
+      } else {
+        await axiosInstance.post("/customer/favorites", {
+          restaurant_id: restaurantId,
+        });
+        setFavorites((prev) => ({ ...prev, [restaurantId]: true }));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <Box sx={{ width: "100%", overflowX: "hidden" }}>
+      <Typography
+        variant="h2"
+        sx={{
+          pt: 5,
+          textAlign: "center",
+          color: "#FBFADA",
+          fontWeight: "bold",
+          backgroundColor: "#12372A",
+        }}
+      >
+        پیشنهاد به شما
+      </Typography>
+      <Grid
+        container
+        spacing={1}
+        sx={{ backgroundColor: "#12372A", p: 3, overflowX: "hidden" }}
+      >
+        {restaurants.slice(0, 6).map((r) => (
+          <Card
+            key={r.id}
+            onClick={() => navigate(`/customer/restaurants/${r.id}`)}
+            sx={{
+              cursor: "pointer",
+              p: 2,
+              m: 1,
+              minWidth: 230,
+              borderRadius: "20px",
+              backgroundColor: "#FBFADA",
+              boxShadow: 0,
+              "&:hover": {
+                transform: "scale(1.1)",
+                border: "2px solid #12372A",
               },
             }}
           >
@@ -362,52 +500,68 @@ const ProductSlider = () => {
 const UpFooter = () => {
   const navigate = useNavigate();
   const isSmall = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const isMedium = useMediaQuery((theme) =>
-    theme.breakpoints.between("sm", "md")
-  );
 
   return (
     <Grid
       container
       alignItems="center"
-      direction={isSmall ? "column" : "row"}
-      sx={{ p: isSmall ? 2 : 0 }}
+      justifyContent="center"
+      sx={{
+        backgroundColor: "#ADBC9F",
+        p: isSmall ? 3 : 6,
+      }}
     >
       <Box
-        ml={isSmall ? 0 : 12}
-        mt={isSmall ? 4 : 8}
-        mb={isSmall ? 0 : 8}
-        mr={isSmall ? 0 : 15}
-        textAlign="left"
+        display="flex"
+        flexDirection="column"
+        alignItems={isSmall ? "center" : "flex-start"}
+        textAlign={isSmall ? "center" : "left"}
+        mr={isSmall ? 0 : 8}
+        mb={isSmall ? 4 : 0}
       >
         <Typography
           variant={isSmall ? "h5" : "h4"}
-          sx={{ mb: 2, color: "#D68240", fontWeight: "bold" }}
+          sx={{ mb: 2, color: "#12372A", fontWeight: "bold" }}
         >
           صاحب یک کسب و کار هستید؟
         </Typography>
         <Typography
           variant={isSmall ? "body1" : "h5"}
-          sx={{ mb: 2, color: "black" }}
+          sx={{ mb: 3, color: "#394533ff" }}
         >
-          با فودی کسب و کارتان را آنلاین کنید و فروشتان را افزایش دهید.
+          با یامزی کسب و کارتان را آنلاین کنید و فروشتان را افزایش دهید.
         </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/restuarant/signup")}
+          sx={{
+            width: isSmall ? "100%" : 170,
+            height: 50,
+            borderRadius: "80px !important",
+            fontWeight: 500,
+            backgroundColor: "#12372A  !important",
+            color: "#ADBC9F  !important",
+            "&:hover": {
+              backgroundColor: "#FBFADA !important",
+              color: "#12372A !important",
+            },
+          }}
+        >
+          ثبت نام فروشندگان
+        </Button>
       </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => navigate("/restuarant/signup")}
-        sx={{
-          ml: isSmall ? 0 : 10,
-          mb: isMedium ? "50px !important" : 0,
-          width: isSmall ? "100%" : 155,
-          height: 50,
-          borderRadius: "50px !important",
-          fontWeight: 400,
-        }}
-      >
-        ثبت نام فروشندگان
-      </Button>
+
+      <Box>
+        <img
+          src={storeImg}
+          alt="Business illustration"
+          style={{
+            maxWidth: isSmall ? "80%" : 400,
+            height: "auto",
+          }}
+        />
+      </Box>
     </Grid>
   );
 };
@@ -439,6 +593,9 @@ const HomePage = () => {
         <ProductSlider />
       </Section>
       <Section>
+        <RecommendedProductSlider />
+      </Section>
+      <Section style={{ height: "50vh" }}>
         <UpFooter />
       </Section>
       <Footer />

@@ -66,7 +66,7 @@ const Footer = () => {
             variant="h6"
             sx={{ pointerEvents: "none", color: "#FBFADA", fontWeight: "bold" }}
           >
-            فودی
+            یامزی
           </Typography>
           <Typography
             variant="h7"
