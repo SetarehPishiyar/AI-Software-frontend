@@ -16,6 +16,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PhoneEnabledIcon from "@mui/icons-material/PhoneEnabled";
 import LoginImg from "../assets/imgs/login.png";
+import YumziImg from "../assets/imgs/yumzi_icon.png";
 import axios from "../utills/axiosInstance.js";
 
 function Login() {
@@ -104,142 +105,187 @@ function Login() {
   };
 
   return (
-    <Box
-      className="login-container"
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        width: "100%",
-        p: 3,
-        gap: { xs: 5, md: 15 },
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      {/* تصویر سمت چپ */}
+    ////add image
+    <>
+      {/* عکس بالای صفحه */}
       <Box
-        component="img"
-        src={LoginImg}
-        alt="Login Illustration"
-        onError={(e) => {
-          e.target.onerror = null;
-          e.target.src = "https://via.placeholder.com/300";
-        }}
         sx={{
-          width: { xs: "70%", md: "40%" },
-          maxWidth: 400,
-          mb: { xs: 3, md: 0 },
-        }}
-      />
-
-      {/* فرم ورود */}
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
+          width: "100%",
           display: "flex",
-          flexDirection: "column",
-          width: { xs: "90%", sm: 400 },
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 3,
-          backgroundColor: "#fff",
+          justifyContent: "center",
+          backgroundColor: "#12372A",
+          overflow:"hidden",
+          pt: 2,
         }}
       >
-        {/* شماره موبایل */}
-        <Box sx={{ display: "flex", alignItems: "flex-end", mb: 2 }}>
-          <PhoneEnabledIcon sx={{ color: "action.active", mr: 1, mb: 1 }} />
-          <TextField
-            fullWidth
-            type="tel"
-            label="شماره موبایل"
-            variant="standard"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
-        </Box>
-
-        {/* رمز عبور */}
-        <Box sx={{ display: "flex", alignItems: "flex-end", mb: 2 }}>
-          <KeyIcon sx={{ color: "action.active", mr: 1, mb: 1 }} />
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="standard-adornment-password">
-              رمزعبور
-            </InputLabel>
-            <Input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label={
-                      showPassword
-                        ? "hide the password"
-                        : "display the password"
-                    }
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-        </Box>
-
-        {/* پیام خطا */}
-        {error && (
-          <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
-            {error}
-          </Typography>
-        )}
-
-        {/* دکمه ورود */}
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mb: 3 }}
-        >
-          ورود
-        </Button>
-
-        {/* لینک‌های ثبت‌نام خارج از فرم برای جلوگیری از submit */}
-        <Typography
-          variant="body2"
-          sx={{ color: "#616161", mb: 1, textAlign: "center" }}
-        >
-          حساب کاربری ندارید؟
-        </Typography>
         <Box
+          component="img"
+          src={YumziImg}
+          alt="Top Logo"
+          sx={{
+            width: 220,
+            height: "auto",
+          }}
+        />
+      </Box>
+
+      <Box
+        className="login-container"
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          justifyContent: "center",
+          height: "90vh", 
+          width: "100%",
+          p: { xs: 2, md: 3 }, 
+          gap: { xs: 3, md: 10 }, 
+          backgroundColor: "#12372A",
+          overflow: "hidden !important", 
+        }}
+      >
+        <Box
+          component="img"
+          src={LoginImg}
+          alt="Login Illustration"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://via.placeholder.com/300";
+          }}
+          sx={{
+            width: { xs: "70%", md: "40%" },
+            maxWidth: 400,
+            mb: { xs: 3, md: 0 },
+          }}
+        />
+
+        {/* فرم ورود */}
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
           sx={{
             display: "flex",
-            justifyContent: "center",
-            gap: 3,
+            flexDirection: "column",
+            width: { xs: "90%", sm: 400 },
+            p: 3,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#ADBC9F",
           }}
         >
-          <Typography
-            variant="body2"
-            onClick={handleSignUpClick}
-            sx={{ cursor: "pointer", color: "primary.main" }}
+          {/* شماره موبایل */}
+          <Box sx={{ display: "flex", alignItems: "flex-end", mb: 2 }}>
+            <PhoneEnabledIcon sx={{ color: "action.active", mr: 1, mb: 1 }} />
+            <TextField
+              fullWidth
+              type="tel"
+              label="شماره موبایل"
+              variant="standard"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </Box>
+
+          {/* رمز عبور */}
+          <Box sx={{ display: "flex", alignItems: "flex-end", mb: 2 }}>
+            <KeyIcon sx={{ color: "action.active", mr: 1, mb: 1 }} />
+            <FormControl variant="standard" fullWidth>
+              <InputLabel htmlFor="standard-adornment-password">
+                رمزعبور
+              </InputLabel>
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword
+                          ? "hide the password"
+                          : "display the password"
+                      }
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </Box>
+
+          {/* پیام خطا */}
+          {error && (
+            <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
+              {error}
+            </Typography>
+          )}
+
+          {/* دکمه ورود */}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mb: 3,
+              backgroundColor: "#12372A !important",
+              color: "#ADBC9F !important",
+              "&:hover": {
+                backgroundColor: "#96B47A !important",
+                color: "#12372A !important",
+              },
+            }}
           >
-            ثبت‌نام
-          </Typography>
+            ورود
+          </Button>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              mt: 2,
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#000 !important",
+                "&:hover": {
+                  cursor: "text",
+                },
+              }}
+            >
+              حساب کاربری ندارید؟
+            </Typography>
+
+            <Typography
+              variant="body2"
+              onClick={handleSignUpClick}
+              sx={{ cursor: "pointer" }}
+            >
+              ثبت‌نام
+            </Typography>
+          </Box>
+
           <Typography
             variant="body2"
             onClick={handleStoreSignUpClick}
-            sx={{ cursor: "pointer", color: "primary.main" }}
+            sx={{
+              cursor: "pointer",
+              color: "primary.main",
+              textAlign: "center",
+              mt: 1,
+            }}
           >
-            ثبت نام فروشندگان
+            ثبت‌نام فروشندگان
           </Typography>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 }
 

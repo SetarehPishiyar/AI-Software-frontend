@@ -9,11 +9,16 @@
 /* Container Styling */
 .login-container,
 .signup-container {
-	width: 410px;
+	width: 100%;
 	padding: 30px;
-	background: white;
-	border-radius: 12px;
+	background: #12372A;
+	border-radius: 0px;
 	text-align: center;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 100vh;
 	margin: auto;
 }
 
@@ -56,23 +61,18 @@ button.MuiButton-root:hover {
 }
 
 .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-	border-color: #d68240 !important;
+	border-color: #12372A !important;
 }
 
 /* Links Styling */
 .signup-container .MuiTypography-root,
 .login-container .MuiTypography-root {
 	margin-top: 15px;
-	color: #d68240;
+	color: #12372A;
 	font-size: 14px;
 	cursor: pointer;
 	transition: color 0.2s;
 }
-
-/* .MuiTypography-root:hover,
-.MuiTypography-root:hover {
-	color: #ADBC9F;
-} */
 
 /* TextField Styling */
 .MuiInput-underline:before {
@@ -80,15 +80,15 @@ button.MuiButton-root:hover {
 }
 
 .MuiInput-underline:hover:before {
-	border-bottom: 1px solid #eead7a !important;
+	border-bottom: 1px solid #96B47A !important;
 }
 
 .MuiInput-underline.Mui-focused:before {
-	border-bottom: 2px solid #eead7a !important;
+	border-bottom: 2px solid #96B47A !important;
 }
 
 .MuiInput-underline.Mui-focused:after {
-	border-bottom: 2px solid #eead7a !important;
+	border-bottom: 2px solid #96B47A !important;
 }
 
 .MuiAccordionSummary-expandIconWrapper {
