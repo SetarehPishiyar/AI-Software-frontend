@@ -15,6 +15,7 @@ import UserProvider from "./contexts/UserContext";
 import CustomerProfile from "./components/User/profile";
 import RestaurantProfile from "./components/Restaurant/Profile";
 import UserEditProfile from "./components/User/EditProfile";
+import RestaurantEditProfile from "./components/Restaurant/EditProfile";
 
 function App() {
   function isAuthenticated() {
@@ -62,6 +63,16 @@ function App() {
                     <UserEditProfile />
                   ) : (
                     <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/restaurant/:id/profileEdit"
+                element={
+                  isAuthenticated() ? (
+                    <RestaurantEditProfile />
+                  ) : (
+                    <Navigate to="/login" replace />
                   )
                 }
               />
