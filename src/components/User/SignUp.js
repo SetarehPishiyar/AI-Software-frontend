@@ -30,7 +30,7 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
     navigate("/login");
