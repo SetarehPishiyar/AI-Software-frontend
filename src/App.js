@@ -13,6 +13,7 @@ import UserSignUp from "./components/User/SignUp";
 import RestaurantSignUp from "./components/Restaurant/SignUp";
 import UserProvider from "./contexts/UserContext";
 import CustomerProfile from "./components/User/profile";
+import RestaurantProfile from "./components/Restaurant/Profile";
 
 function App() {
   function isAuthenticated() {
@@ -48,6 +49,10 @@ function App() {
                     <Navigate to="/login" replace />
                   )
                 }
+              />
+              <Route
+                path="/restaurant/:id/profile"
+                element={<RestaurantProfile />}
               />
             </Routes>
           </Router>
