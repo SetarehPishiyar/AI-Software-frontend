@@ -56,7 +56,7 @@ function App() {
                 }
               />
               <Route
-                path="/favorites"
+                path="/customer/favorites"
                 element={
                   isAuthenticated() ? (
                     <FavoritesPage />

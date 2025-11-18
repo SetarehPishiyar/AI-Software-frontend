@@ -114,6 +114,7 @@ const FavoritesPage = () => {
               borderRadius: "50%",
               width: 40,
               height: 40,
+              rotate: "180deg",
               "&:hover": {
                 backgroundColor: COLORS.mid,
               },
