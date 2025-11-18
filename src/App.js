@@ -16,6 +16,9 @@ import CustomerProfile from "./components/User/profile";
 import RestaurantProfile from "./components/Restaurant/Profile";
 import UserEditProfile from "./components/User/EditProfile";
 import RestaurantEditProfile from "./components/Restaurant/EditProfile";
+import FavoritesPage from "./components/User/FavoritesPage";
+
+
 
 function App() {
   function isAuthenticated() {
@@ -47,6 +50,16 @@ function App() {
                 element={
                   isAuthenticated() ? (
                     <CustomerProfile />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/favorites"
+                element={
+                  isAuthenticated() ? (
+                    <FavoritesPage />
                   ) : (
                     <Navigate to="/login" replace />
                   )
