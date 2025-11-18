@@ -114,6 +114,7 @@ const FavoritesPage = () => {
               borderRadius: "50%",
               width: 40,
               height: 40,
+              rotate: "180deg",
               "&:hover": {
                 backgroundColor: COLORS.mid,
               },
@@ -244,7 +245,7 @@ const FavoritesPage = () => {
                     </IconButton>
                     <IconButton
                       sx={{
-                        color: "#FF6B81",
+                        color: "red",
                         pointerEvents: "none",
                       }}
                       onClick={(e) => e.stopPropagation()}

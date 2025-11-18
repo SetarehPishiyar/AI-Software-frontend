@@ -22,6 +22,7 @@ import { FavoriteBorder, Favorite, Star } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utills/axiosInstance";
 import publicAxiosInstance from "../../utills/publicAxiosInstance";
+import { ArrowForwardIos } from "@mui/icons-material";
 
 const HeroSection = () => (
   <Box
@@ -288,64 +289,99 @@ const ProductSlider = () => {
       >
         محبوب ترین ها
       </Typography>
-      <Grid
-        container
-        spacing={1}
-        sx={{ backgroundColor: "#12372A", p: 3, overflowX: "hidden" }}
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          backgroundColor: "#12372A",
+          p: 3,
+          alignItems: "center",
+        }}
       >
-        {restaurants.slice(0, 6).map((r) => (
-          <Card
-            key={r.id}
-            onClick={() => navigate(`/customer/restaurants/${r.id}`)}
+        <Grid
+          container
+          spacing={1}
+          sx={{ flex: 1 }} 
+        >
+          {restaurants.slice(0, 6).map((r) => (
+            <Card
+              key={r.id}
+              onClick={() => navigate(`/customer/restaurants/${r.id}`)}
+              sx={{
+                cursor: "pointer",
+                p: 2,
+                m: 1,
+                minWidth: 230,
+                borderRadius: "20px",
+                backgroundColor: "#FBFADA",
+                boxShadow: 0,
+                "&:hover": {
+                  transform: "scale(1.1)",
+                  border: "2px solid #12372A",
+                },
+              }}
+            >
+              <CardMedia
+                component="img"
+                height="140"
+                image={
+                  r.photo
+                    ? `http://127.0.0.1:8000${r.photo}`
+                    : "https://via.placeholder.com/120"
+                }
+                alt={r.name}
+              />
+              <CardContent>
+                <Typography variant="h6">{r.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <Star sx={{ pt: "12px" }} /> امتیاز: {r.score}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  هزینه ارسال: {Math.floor(parseFloat(r.delivery_price))} تومان
+                </Typography>
+              </CardContent>
+              <IconButton
+                sx={{ position: "absolute", top: 8, right: 8 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(r.id);
+                }}
+              >
+                {favorites[r.id] ? (
+                  <Favorite sx={{ color: "red" }} />
+                ) : (
+                  <FavoriteBorder />
+                )}
+              </IconButton>
+            </Card>
+          ))}
+        </Grid>
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start", 
+            pt: 1,
+          }}
+        >
+          <IconButton
+            onClick={() => navigate(`/search?name=`)}
             sx={{
-              cursor: "pointer",
-              p: 2,
-              m: 1,
-              minWidth: 230,
-              borderRadius: "20px",
               backgroundColor: "#FBFADA",
-              boxShadow: 0,
+              width: 40,
+              height: 40,
+              rotate:"180deg",
               "&:hover": {
-                transform: "scale(1.1)",
-                border: "2px solid #12372A",
+                backgroundColor: "#cfe3c5",
+                transform: "scale(1.15)",
               },
             }}
           >
-            <CardMedia
-              component="img"
-              height="140"
-              image={
-                r.photo
-                  ? `http://127.0.0.1:8000${r.photo}`
-                  : "https://via.placeholder.com/120"
-              }
-              alt={r.name}
-            />
-            <CardContent>
-              <Typography variant="h6">{r.name}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                <Star sx={{ pt: "12px" }} /> امتیاز: {r.score}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                هزینه ارسال: {Math.floor(parseFloat(r.delivery_price))} تومان
-              </Typography>
-            </CardContent>
-            <IconButton
-              sx={{ position: "absolute", top: 8, right: 8 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(r.id);
-              }}
-            >
-              {favorites[r.id] ? (
-                <Favorite sx={{ color: "red" }} />
-              ) : (
-                <FavoriteBorder />
-              )}
-            </IconButton>
-          </Card>
-        ))}
-      </Grid>
+            <ArrowForwardIos sx={{ color: "#12372A" }} />
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   );
 };

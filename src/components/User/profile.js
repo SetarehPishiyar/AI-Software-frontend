@@ -55,7 +55,12 @@ const UserProfilePage = () => {
           color: "white",
         }}
       >
-        <img src={YumziImg} alt="yumzi" style={{ height: 60 }} />
+        <img
+          src={YumziImg}
+          alt="yumzi"
+          style={{ height: 60, cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        />
       </Box>
 
       {/* PROFILE SECTION BELOW HEADER (desktop style) */}
