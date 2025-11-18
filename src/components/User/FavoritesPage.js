@@ -245,7 +245,7 @@ const FavoritesPage = () => {
                     </IconButton>
                     <IconButton
                       sx={{
-                        color: "#FF6B81",
+                        color: "red",
                         pointerEvents: "none",
                       }}
                       onClick={(e) => e.stopPropagation()}

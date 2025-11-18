@@ -135,7 +135,7 @@ const Header = () => {
         <img
           src={YumziImg}
           alt="Login Illustration"
-          style={{ width: "130px", marginLeft: "15px" }}
+          style={{ width: "140px", marginLeft: "15px" }}
         />
         <Search>
           <SearchIconWrapper>
@@ -158,7 +158,7 @@ const Header = () => {
                 top: "50px",
                 left: "0",
                 right: "0",
-                backgroundColor: "#fff",
+                backgroundColor: "#FBFADA",
                 borderRadius: "8px",
                 boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
                 zIndex: "100",
@@ -343,7 +343,7 @@ const Header = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <ShoppingCartIcon
               sx={{
-                color: "#555",
+                color: "#FBFADA",
                 cursor: "pointer",
                 "&:hover": { color: "#000" },
               }}
