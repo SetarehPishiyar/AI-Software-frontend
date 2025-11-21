@@ -21,6 +21,7 @@ import SearchPage from "./components/User/SearchPage.js";
 import RestaurantPage from "./components/User/RestaurantPage";
 import EditMenu from "./components/Restaurant/EditMenu";
 import FoodItemPage from "./components/User/MenuItem";
+import CartsList from "./components/User/CartsList";
 
 function App() {
   function isAuthenticated() {
@@ -105,6 +106,16 @@ function App() {
               <Route
                 path="/customer/restaurants/:id/:item_id"
                 element={<FoodItemPage />}
+              />
+              <Route
+                path="/customer/cart-list"
+                element={
+                  isAuthenticated() ? (
+                    <CartsList />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
               />
             </Routes>
           </Router>
