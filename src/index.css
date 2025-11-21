@@ -1,15 +1,16 @@
 code {
-  font-family: 'Vazir', sans-serif;
+  font-family: "Vazir", sans-serif;
 }
 
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Vazir', sans-serif;
+  font-family: "Vazir", sans-serif;
+  background-color: #adbc9f;
 
   overflow-y: scroll;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -17,9 +18,8 @@ body {
 
 body::-webkit-scrollbar {
   width: 0px;
-  background: transparent; 
+  background: transparent;
 }
-
 
 p.static-text {
   pointer-events: none;
