@@ -23,6 +23,7 @@ import EditMenu from "./components/Restaurant/EditMenu";
 import FoodItemPage from "./components/User/MenuItem";
 import CartsList from "./components/User/CartsList";
 import CartPage from "./components/User/CartPage.js";
+import CartCompletion from "./components/User/CartCompletion.js";
 
 function App() {
   function isAuthenticated() {
@@ -122,6 +123,16 @@ function App() {
                 path="/customer/carts"
                 element={
                   isAuthenticated() ? <CartPage /> : <Navigate to="/login" />
+                }
+              />
+              <Route
+                path="/customer/carts/:id/cart-completion"
+                element={
+                  isAuthenticated() ? (
+                    <CartCompletion />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
                 }
               />
             </Routes>

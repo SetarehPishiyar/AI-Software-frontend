@@ -94,7 +94,7 @@ const CartsList = () => {
       </Box>
 
       {/* Cart Items */}
-      <Container sx={{ mt: 2 }}>
+      <Container sx={{ mt: 2, width:"80%" }}>
         <Grid container spacing={2} justifyContent="center">
           {cartItems.length === 0 ? (
             <Typography
@@ -113,7 +113,6 @@ const CartsList = () => {
                     margin: "auto",
                     justifyContent: "space-between",
                     backgroundColor: "#12372A",
-                    maxWidth: "80%",
                     alignItems: "center",
                     padding: 3,
                     borderRadius: "8px",

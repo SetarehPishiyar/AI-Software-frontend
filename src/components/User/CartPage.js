@@ -145,7 +145,7 @@ const CartPage = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
+      <Container sx={{ mt: 3, mb: 8, width:"80%" }}>
         {cartItems.length === 0 ? (
           <Typography
             variant="h6"
