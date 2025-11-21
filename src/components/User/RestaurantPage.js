@@ -234,7 +234,7 @@ const RestaurantPage = () => {
         width: "100%",
         display: "flex",
         justifyContent: "center",
-        backgroundColor: "#FBFADA",
+        backgroundColor: "#ADBC9F",
       }}
     >
       {/* هدر */}
@@ -277,12 +277,20 @@ const RestaurantPage = () => {
         </Toolbar>
       </AppBar>
 
-      <Grid>
+      <Grid
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <Box
           sx={{
             position: "relative",
             width: "fit-content",
             mx: "auto",
+            height: "auto",
           }}
         >
           <img
@@ -293,7 +301,7 @@ const RestaurantPage = () => {
               e.target.src = "https://via.placeholder.com/100";
             }}
             style={{
-              height: "300px",
+              height: "220px",
               display: "block",
               borderRadius: 18,
             }}
@@ -360,9 +368,15 @@ const RestaurantPage = () => {
         </Typography>
         <Button
           variant="contained"
-          color="success"
           fullWidth
           onClick={handleViewCartClick}
+          sx={{
+            backgroundColor: "#FBFADA !important",
+            color: "#000",
+            "&:hover": {
+              backgroundColor: "#e4eac7 !important",
+            },
+          }}
         >
           مشاهده سبد خرید
         </Button>
@@ -382,9 +396,13 @@ const RestaurantPage = () => {
                     display: "flex",
                     mb: 2,
                     boxShadow: "none",
-                    paddingBottom: 2,
-                    borderRadius: 0,
+                    padding: 2,
+                    borderRadius: 3,
                     borderBottom: "1px solid gray",
+                    backgroundColor: "#FBFADA",
+                    "&:hover": {
+                      backgroundColor: "#e4eac7 !important",
+                    },
                   }}
                 >
                   <Box sx={{ position: "relative" }}>
@@ -444,7 +462,7 @@ const RestaurantPage = () => {
                           </Typography>
                           <Typography
                             variant="body1"
-                            color="#D68240"
+                            color="#12372A"
                             sx={{ display: "inline-block" }}
                           >
                             {Math.floor(
@@ -474,7 +492,7 @@ const RestaurantPage = () => {
                     sx={{
                       backgroundColor: addedToCart[food.item_id]
                         ? "gray"
-                        : "#D68240",
+                        : "#12372A",
                       color: addedToCart[food.item_id] ? "white" : "black",
                       alignSelf: "center",
                       margin: 1,

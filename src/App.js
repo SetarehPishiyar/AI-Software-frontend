@@ -19,6 +19,7 @@ import RestaurantEditProfile from "./components/Restaurant/EditProfile";
 import FavoritesPage from "./components/User/FavoritesPage";
 import SearchPage from "./components/User/SearchPage.js";
 import RestaurantPage from "./components/User/RestaurantPage";
+import EditMenu from "./components/Restaurant/EditMenu";
 
 function App() {
   function isAuthenticated() {
@@ -93,6 +94,12 @@ function App() {
               <Route
                 path="/customer/restaurants/:id"
                 element={<RestaurantPage />}
+              />
+              <Route
+                path="/restaurant/:res_id/menu"
+                element={
+                  isAuthenticated() ? <EditMenu /> : <Navigate to="/login" />
+                }
               />
             </Routes>
           </Router>
