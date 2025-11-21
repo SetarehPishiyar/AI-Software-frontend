@@ -24,6 +24,7 @@ import FoodItemPage from "./components/User/MenuItem";
 import CartsList from "./components/User/CartsList";
 import CartPage from "./components/User/CartPage.js";
 import CartCompletion from "./components/User/CartCompletion.js";
+import CheckoutPage from "./components/User/Checkout.js";
 
 function App() {
   function isAuthenticated() {
@@ -130,6 +131,16 @@ function App() {
                 element={
                   isAuthenticated() ? (
                     <CartCompletion />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/customer/carts/:id/checkout"
+                element={
+                  isAuthenticated() ? (
+                    <CheckoutPage />
                   ) : (
                     <Navigate to="/login" />
                   )
