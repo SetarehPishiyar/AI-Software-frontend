@@ -20,6 +20,7 @@ import FavoritesPage from "./components/User/FavoritesPage";
 import SearchPage from "./components/User/SearchPage.js";
 import RestaurantPage from "./components/User/RestaurantPage";
 import EditMenu from "./components/Restaurant/EditMenu";
+import FoodItemPage from "./components/User/MenuItem";
 
 function App() {
   function isAuthenticated() {
@@ -100,6 +101,10 @@ function App() {
                 element={
                   isAuthenticated() ? <EditMenu /> : <Navigate to="/login" />
                 }
+              />
+              <Route
+                path="/customer/restaurants/:id/:item_id"
+                element={<FoodItemPage />}
               />
             </Routes>
           </Router>
