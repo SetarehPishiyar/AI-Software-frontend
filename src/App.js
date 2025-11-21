@@ -18,6 +18,7 @@ import UserEditProfile from "./components/User/EditProfile";
 import RestaurantEditProfile from "./components/Restaurant/EditProfile";
 import FavoritesPage from "./components/User/FavoritesPage";
 import SearchPage from "./components/User/SearchPage.js";
+import RestaurantPage from "./components/User/RestaurantPage";
 
 function App() {
   function isAuthenticated() {
@@ -89,6 +90,10 @@ function App() {
                 }
               />
               <Route path="/search" element={<SearchPage />} />
+              <Route
+                path="/customer/restaurants/:id"
+                element={<RestaurantPage />}
+              />
             </Routes>
           </Router>
         </UserProvider>
