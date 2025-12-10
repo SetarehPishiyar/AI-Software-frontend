@@ -2,70 +2,21 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Grid, IconButton } from "@mui/material";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utills/axiosInstance";
-import publicAxiosInstance from "../utills/publicAxiosInstance";
 import RestaurantCard from "./RestaurantCard";
+import { useRestaurants } from "../contexts/RestaurantContext";
+import useFavorites from "../hooks/useFavorites";
 
 const ProductSlider = ({ title }) => {
   const navigate = useNavigate();
-  const [restaurants, setRestaurants] = useState([]);
+  const restaurants = useRestaurants(); 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [favorites, setFavorites] = useState({});
+  const { favorites, toggleFavorite } = useFavorites(isLoggedIn); 
 
-  const checkAuthentication = () => {
+  useEffect(() => {
     const accessToken = localStorage.getItem("access");
     const refreshToken = localStorage.getItem("refresh");
     setIsLoggedIn(!!(accessToken && refreshToken));
-  };
-
-  useEffect(() => {
-    checkAuthentication();
   }, []);
-
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        const response = await publicAxiosInstance.get("/restaurant/profiles");
-        const sorted = response.data.restaurants.sort(
-          (a, b) => b.score - a.score
-        );
-        setRestaurants(sorted);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    const fetchFavorites = async () => {
-      if (!isLoggedIn) return;
-      try {
-        const res = await axiosInstance.get("/customer/favorites");
-        const favMap = {};
-        res.data.forEach((f) => {
-          favMap[f.restaurant] = true;
-        });
-        setFavorites(favMap);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchRestaurants();
-    fetchFavorites();
-  }, [isLoggedIn]);
-
-  const toggleFavorite = async (id) => {
-    if (!isLoggedIn) return alert("ابتدا وارد حساب شوید.");
-    const isFav = favorites[id];
-    try {
-      if (isFav)
-        await axiosInstance.delete("/customer/favorites", {
-          params: { restaurant_id: id },
-        });
-      else
-        await axiosInstance.post("/customer/favorites", { restaurant_id: id });
-      setFavorites((prev) => ({ ...prev, [id]: !isFav }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
@@ -93,15 +44,18 @@ const ProductSlider = ({ title }) => {
         }}
       >
         <Grid container spacing={1} sx={{ flex: 1 }}>
-          {restaurants.slice(0, 6).map((r) => (
-            <RestaurantCard
-              key={r.id}
-              restaurant={r}
-              isFavorite={favorites[r.id]}
-              toggleFavorite={toggleFavorite}
-              onClick={() => navigate(`/customer/restaurants/${r.id}`)}
-            />
-          ))}
+          {Array.isArray(restaurants) &&
+            restaurants
+              .slice(0, 6)
+              .map((r) => (
+                <RestaurantCard
+                  restaurant={r}
+                  isFavorite={favorites[r.id]}
+                  toggleFavorite={toggleFavorite}
+                  onClick={() => navigate(`/customer/restaurants/${r.id}`)}
+                  showDetails={true}
+                />
+              ))}
         </Grid>
 
         <Box sx={{ display: "flex", alignItems: "flex-start", pt: 1 }}>

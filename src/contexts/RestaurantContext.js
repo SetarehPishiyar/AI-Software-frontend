@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getRestaurants } from "@/services/restaurantService";
+import { getRestaurants } from "../services/restaurantService";
 
 const RestaurantContext = createContext();
 
@@ -11,7 +11,10 @@ export function RestaurantProvider({ children }) {
     const load = async () => {
       try {
         const data = await getRestaurants();
-        setRestaurants(data);
+        setRestaurants(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Error loading restaurants:", err);
+        setRestaurants([]);
       } finally {
         setLoading(false);
       }
@@ -26,4 +29,19 @@ export function RestaurantProvider({ children }) {
   );
 }
 
-export const useRestaurants = () => useContext(RestaurantContext);
+// هوک اصلاح‌شده
+export const useRestaurants = () => {
+  const context = useContext(RestaurantContext);
+  if (!context)
+    throw new Error("useRestaurants must be used within RestaurantProvider");
+  return context.restaurants; // فقط آرایه را برمی‌گردونیم
+};
+
+export const useRestaurantsLoading = () => {
+  const context = useContext(RestaurantContext);
+  if (!context)
+    throw new Error(
+      "useRestaurantsLoading must be used within RestaurantProvider"
+    );
+  return context.loading;
+};
