@@ -16,6 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import moment from "moment-jalaali";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utills/axiosInstance";
+import publicAxiosInstance from "../../utills/publicAxiosInstance";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
 
 const deliveryMethodMap = {
@@ -31,21 +32,49 @@ const paymentMethodMap = {
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
+  const [reviewsMap, setReviewsMap] = useState({}); // key = order_id, value = review or null
   const navigate = useNavigate();
+  const userId = JSON.parse(localStorage.getItem("user"))?.user?.id;
 
   useEffect(() => {
     axiosInstance
       .get("/customer/orders")
-      .then((response) => setOrders(response.data))
+      .then((response) => {
+        setOrders(response.data);
+        response.data.forEach((order) => fetchOrderReview(order));
+      })
       .catch(() => {});
   }, []);
+
+  const fetchOrderReview = async (order) => {
+    if (!order.order_items || order.order_items.length === 0) return;
+
+    // برای هر آیتم سفارش، ریویوها رو چک کن
+    for (let item of order.order_items) {
+      try {
+        const res = await publicAxiosInstance.get(
+          `/customer/items/${item.item_id}/reviews/`
+        );
+        const myReview = res.data.find((r) => r.user_id === userId);
+        if (myReview) {
+          setReviewsMap((prev) => ({ ...prev, [order.order_id]: myReview }));
+          return; // اگر ریویو پیدا شد، دیگه نیازی به چک بقیه آیتم‌ها نیست
+        }
+      } catch (err) {
+        console.error("Error fetching review:", err);
+      }
+    }
+
+    // اگر ریویو پیدا نشد
+    setReviewsMap((prev) => ({ ...prev, [order.order_id]: null }));
+  };
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "#b9c3a7" }}>
+    <Box sx={{ width: "100%", minHeight: "120vh", bgcolor: "#b9c3a7" }}>
       {/* HEADER */}
       <Box
         sx={{
@@ -151,16 +180,21 @@ const MyOrders = () => {
                 </Typography>
               </CardContent>
 
-              {/* BUTTONS */}
               <CardActions
-                sx={{ display: "flex", justifyContent: "space-between" }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 1,
+                }}
               >
-                <Box sx={{ display: "flex", gap: 1 }}>
+                {/* LEFT BUTTONS */}
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                   {order.state === "completed" ? (
                     <Button
                       variant="contained"
                       disabled
-                      sx={{ bgcolor: "#355f4a", color: "white" }}
+                      sx={{ bgcolor: "#355f4a", color: "white", minWidth: 120 }}
                     >
                       تحویل شده
                     </Button>
@@ -170,6 +204,7 @@ const MyOrders = () => {
                       sx={{
                         bgcolor: "#0f3924",
                         "&:hover": { bgcolor: "#12372A" },
+                        minWidth: 120,
                       }}
                       onClick={() =>
                         navigate(
@@ -186,6 +221,7 @@ const MyOrders = () => {
                     sx={{
                       bgcolor: "#0f3924",
                       "&:hover": { bgcolor: "#12372A" },
+                      minWidth: 120,
                     }}
                     onClick={() =>
                       navigate(`/customer/restaurants/${order.restaurant}`)
@@ -193,6 +229,41 @@ const MyOrders = () => {
                   >
                     سفارش مجدد
                   </Button>
+
+                  {/* REVIEW */}
+                  {order.state === "completed" && (
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                      {reviewsMap[order.order_id] ? (
+                        <Button
+                          variant="contained"
+                          disabled
+                          sx={{
+                            bgcolor: "#0f3924",
+                            "&:hover": { bgcolor: "#12372A" },
+                            minWidth: 120,
+                          }}
+                        >
+                          امتیاز شما: {reviewsMap[order.order_id].score} ⭐
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          sx={{
+                            bgcolor: "#0f3924",
+                            "&:hover": { bgcolor: "#12372A" },
+                            minWidth: 120,
+                          }}
+                          onClick={() =>
+                            navigate(
+                              `/customer/orders/${order.order_id}/review`
+                            )
+                          }
+                        >
+                          ثبت نظر
+                        </Button>
+                      )}
+                    </Box>
+                  )}
                 </Box>
 
                 {/* COLLAPSE BUTTON */}
@@ -201,8 +272,11 @@ const MyOrders = () => {
                     bgcolor: "#0f3924",
                     color: "white",
                     "&:hover": { bgcolor: "#12372A" },
+                    minWidth: 40,
                   }}
-                  onClick={() => handleCollapseToggle(index)}
+                  onClick={() =>
+                    setOpenIndex(openIndex === index ? null : index)
+                  }
                 >
                   <ExpandMoreIcon />
                 </Button>
@@ -214,7 +288,6 @@ const MyOrders = () => {
                   <Typography sx={{ fontWeight: "bold", mb: 1 }}>
                     آیتم‌های سفارش:
                   </Typography>
-
                   <List>
                     {order.order_items.map((item, idx) => (
                       <ListItem key={idx} sx={{ px: 0 }}>

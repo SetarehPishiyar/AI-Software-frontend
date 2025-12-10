@@ -161,7 +161,10 @@ const TrackOrderPage = () => {
                     StepIconProps={{
                       sx: {
                         color:
-                          index <= activeStep ? "#e16d6dff !important" : "gray",
+                          index <= activeStep ? "#eff44bff !important" : "gray",
+                        "& .MuiStepIcon-text": {
+                          fill: "#12372A",
+                        },
                       },
                     }}
                   >
