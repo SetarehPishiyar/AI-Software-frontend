@@ -25,6 +25,10 @@ import CartsList from "./components/User/CartsList";
 import CartPage from "./components/User/CartPage.js";
 import CartCompletion from "./components/User/CartCompletion.js";
 import CheckoutPage from "./components/User/Checkout.js";
+import MyOrders from "./components/User/MyOrders";
+import RestaurantOrderList from "./components/Restaurant/Orders.js";
+import TrackOrderPage from "./components/User/TrackOrder.js";
+import ReviewPage from "./components/User/ReviewPage";
 
 function App() {
   function isAuthenticated() {
@@ -144,6 +148,42 @@ function App() {
                   ) : (
                     <Navigate to="/login" />
                   )
+                }
+              />
+              <Route
+                path="/customer/orders"
+                element={
+                  isAuthenticated() ? (
+                    <MyOrders />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/restaurant/:id/orders"
+                element={
+                  isAuthenticated() ? (
+                    <RestaurantOrderList />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/customer/orders/:id/track-order"
+                element={
+                  isAuthenticated() ? (
+                    <TrackOrderPage />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="customer/orders/:id/review"
+                element={
+                  isAuthenticated() ? <ReviewPage /> : <Navigate to="/login" />
                 }
               />
             </Routes>
