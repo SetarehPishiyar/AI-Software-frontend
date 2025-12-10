@@ -37,6 +37,7 @@ import LoginPage from "./pages/Login";
 
 // Context
 import UserProvider from "./contexts/UserContext";
+import { FoodCartProvider } from "./contexts/FoodCartContext";
 
 function App() {
   function isAuthenticated() {
@@ -49,153 +50,162 @@ function App() {
     <div className="app-container">
       <RTLProvider>
         <UserProvider>
-          <Router>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Header isAuthenticated={isAuthenticated} />
-                    <HomePage isAuthenticated={isAuthenticated} />
-                  </>
-                }
-              />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/customer/signup" element={<UserSignUp />} />
-              <Route path="/restuarant/signup" element={<RestaurantSignUp />} />
-              <Route
-                path="/customer/profile"
-                element={
-                  isAuthenticated() ? (
-                    <CustomerProfile />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/customer/favorites"
-                element={
-                  isAuthenticated() ? (
-                    <FavoritesPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/restaurant/:id/profile"
-                element={<RestaurantProfile />}
-              />
-              <Route
-                path="/customer/edit-profile"
-                element={
-                  isAuthenticated() ? (
-                    <UserEditProfile />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
-              <Route
-                path="/restaurant/:id/profileEdit"
-                element={
-                  isAuthenticated() ? (
-                    <RestaurantEditProfile />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route path="/search" element={<SearchPage />} />
-              <Route
-                path="/customer/restaurants/:id"
-                element={<RestaurantPage />}
-              />
-              <Route
-                path="/restaurant/:res_id/menu"
-                element={
-                  isAuthenticated() ? <EditMenu /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/customer/restaurants/:id/:item_id"
-                element={<FoodItemPage />}
-              />
-              <Route
-                path="/customer/cart-list"
-                element={
-                  isAuthenticated() ? (
-                    <CartsList />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/customer/carts"
-                element={
-                  isAuthenticated() ? <CartPage /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/customer/carts/:id/cart-completion"
-                element={
-                  isAuthenticated() ? (
-                    <CartCompletion />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
-              <Route
-                path="/customer/carts/:id/checkout"
-                element={
-                  isAuthenticated() ? (
-                    <CheckoutPage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
-              <Route
-                path="/customer/orders"
-                element={
-                  isAuthenticated() ? (
-                    <MyOrders />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/restaurant/:id/orders"
-                element={
-                  isAuthenticated() ? (
-                    <RestaurantOrderList />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
-              <Route
-                path="/customer/orders/:id/track-order"
-                element={
-                  isAuthenticated() ? (
-                    <TrackOrderPage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
-              <Route
-                path="customer/orders/:id/review"
-                element={
-                  isAuthenticated() ? <ReviewPage /> : <Navigate to="/login" />
-                }
-              />
-            </Routes>
-          </Router>
+          <FoodCartProvider>
+            <Router>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <Header isAuthenticated={isAuthenticated} />
+                      <HomePage isAuthenticated={isAuthenticated} />
+                    </>
+                  }
+                />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/customer/signup" element={<UserSignUp />} />
+                <Route
+                  path="/restuarant/signup"
+                  element={<RestaurantSignUp />}
+                />
+                <Route
+                  path="/customer/profile"
+                  element={
+                    isAuthenticated() ? (
+                      <CustomerProfile />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/customer/favorites"
+                  element={
+                    isAuthenticated() ? (
+                      <FavoritesPage />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/restaurant/:id/profile"
+                  element={<RestaurantProfile />}
+                />
+                <Route
+                  path="/customer/edit-profile"
+                  element={
+                    isAuthenticated() ? (
+                      <UserEditProfile />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="/restaurant/:id/profileEdit"
+                  element={
+                    isAuthenticated() ? (
+                      <RestaurantEditProfile />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route path="/search" element={<SearchPage />} />
+                <Route
+                  path="/customer/restaurants/:id"
+                  element={<RestaurantPage />}
+                />
+                <Route
+                  path="/restaurant/:res_id/menu"
+                  element={
+                    isAuthenticated() ? <EditMenu /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/customer/restaurants/:id/:item_id"
+                  element={<FoodItemPage />}
+                />
+                <Route
+                  path="/customer/cart-list"
+                  element={
+                    isAuthenticated() ? (
+                      <CartsList />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/customer/carts"
+                  element={
+                    isAuthenticated() ? <CartPage /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/customer/carts/:id/cart-completion"
+                  element={
+                    isAuthenticated() ? (
+                      <CartCompletion />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="/customer/carts/:id/checkout"
+                  element={
+                    isAuthenticated() ? (
+                      <CheckoutPage />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="/customer/orders"
+                  element={
+                    isAuthenticated() ? (
+                      <MyOrders />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/restaurant/:id/orders"
+                  element={
+                    isAuthenticated() ? (
+                      <RestaurantOrderList />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="/customer/orders/:id/track-order"
+                  element={
+                    isAuthenticated() ? (
+                      <TrackOrderPage />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="customer/orders/:id/review"
+                  element={
+                    isAuthenticated() ? (
+                      <ReviewPage />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+              </Routes>
+            </Router>
+          </FoodCartProvider>
         </UserProvider>
       </RTLProvider>
     </div>
