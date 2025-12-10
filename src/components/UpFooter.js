@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Box, Typography, Button, useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import storeImg from "../../assets/imgs/stores.png";
+import storeImg from "../assets/imgs/stores.png";
 
 const UpFooter = () => {
   const navigate = useNavigate();

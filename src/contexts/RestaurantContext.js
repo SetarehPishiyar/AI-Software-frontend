@@ -1,42 +1,29 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getRestaurants } from "../services/restaurantService";
-import { getFavorites } from "../services/favoriteService";
-import { useAuthContext } from "./AuthContext";
+import { getRestaurants } from "@/services/restaurantService";
 
 const RestaurantContext = createContext();
 
-export const RestaurantProvider = ({ children }) => {
-  const { isLoggedIn } = useAuthContext();
+export function RestaurantProvider({ children }) {
   const [restaurants, setRestaurants] = useState([]);
-  const [favorites, setFavorites] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRestaurants = async () => {
-      const data = await getRestaurants();
-      setRestaurants(data);
+    const load = async () => {
+      try {
+        const data = await getRestaurants();
+        setRestaurants(data);
+      } finally {
+        setLoading(false);
+      }
     };
-
-    const fetchFavorites = async () => {
-      if (!isLoggedIn) return;
-      const favData = await getFavorites();
-      const favMap = {};
-      favData.forEach((fav) => {
-        favMap[fav.restaurant] = true;
-      });
-      setFavorites(favMap);
-    };
-
-    fetchRestaurants();
-    fetchFavorites();
-  }, [isLoggedIn]);
+    load();
+  }, []);
 
   return (
-    <RestaurantContext.Provider
-      value={{ restaurants, favorites, setFavorites }}
-    >
+    <RestaurantContext.Provider value={{ restaurants, loading }}>
       {children}
     </RestaurantContext.Provider>
   );
-};
+}
 
-export const useRestaurantContext = () => useContext(RestaurantContext);
+export const useRestaurants = () => useContext(RestaurantContext);

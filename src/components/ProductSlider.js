@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Grid, IconButton } from "@mui/material";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../utills/axiosInstance";
-import publicAxiosInstance from "../../utills/publicAxiosInstance";
+import axiosInstance from "../utills/axiosInstance";
+import publicAxiosInstance from "../utills/publicAxiosInstance";
 import RestaurantCard from "./RestaurantCard";
 
 const ProductSlider = ({ title }) => {
@@ -70,7 +70,7 @@ const ProductSlider = ({ title }) => {
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
       <Typography
-        variant="h2"
+        variant="h3"
         sx={{
           pt: 5,
           textAlign: "center",
@@ -88,6 +88,7 @@ const ProductSlider = ({ title }) => {
           flexDirection: "row",
           backgroundColor: "#12372A",
           p: 3,
+          height: "70vh",
           alignItems: "center",
         }}
       >

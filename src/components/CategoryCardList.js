@@ -2,11 +2,11 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
-import restaurantImg from "../../assets/imgs/restaurant.png";
-import cafeImg from "../../assets/imgs/cafe.png";
-import sweetsImg from "../../assets/imgs/sweets.png";
-import iceCreamImg from "../../assets/imgs/ice_cream.png";
-import bakeryImg from "../../assets/imgs/bakery.png";
+import restaurantImg from "../assets/imgs/restaurant.png";
+import cafeImg from "../assets/imgs/cafe.png";
+import sweetsImg from "../assets/imgs/sweets.png";
+import iceCreamImg from "../assets/imgs/ice_cream.png";
+import bakeryImg from "../assets/imgs/bakery.png";
 
 const categories = [
   { title: "رستوران", image: restaurantImg, type: "restaurant" },
