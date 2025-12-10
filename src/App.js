@@ -27,6 +27,7 @@ import CartCompletion from "./components/User/CartCompletion.js";
 import CheckoutPage from "./components/User/Checkout.js";
 import MyOrders from "./components/User/MyOrders";
 import RestaurantOrderList from "./components/Restaurant/Orders.js";
+import TrackOrderPage from "./components/User/TrackOrder.js";
 
 function App() {
   function isAuthenticated() {
@@ -163,6 +164,16 @@ function App() {
                 element={
                   isAuthenticated() ? (
                     <RestaurantOrderList />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/customer/orders/:id/track-order"
+                element={
+                  isAuthenticated() ? (
+                    <TrackOrderPage />
                   ) : (
                     <Navigate to="/login" />
                   )
