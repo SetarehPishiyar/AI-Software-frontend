@@ -9,80 +9,72 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+
+import { useAuthContext } from "../../contexts/AuthContext";
+import { useOrders } from "../../hooks/useOrders";
+import useSingleRestaurant from "../../components/SingleRestaurantFetcher";
+
 import axiosInstance from "../../utills/axiosInstance";
+import { PLACEHOLDER_IMG } from "../../utills/constants"; // اگر نداری، خودم پایین می‌نویسم
 
 const ReviewPage = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // order_id
   const navigate = useNavigate();
+
+  const { isLoggedIn } = useAuthContext();
+
+  const userId = JSON.parse(localStorage.getItem("user"))?.user?.id;
+  const { orders } = useOrders(userId);
+
   const [order, setOrder] = useState(null);
-  const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
+  // وقتی سفارش‌ها از useOrders لود شد → سفارش موردنظر را پیدا کن
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const orderResponse = await axiosInstance.get("/customer/orders");
-        const orderData = orderResponse.data;
-        const selectedOrder = orderData.find(
-          (order) => order.order_id === parseInt(id)
-        );
-        if (selectedOrder) {
-          setOrder(selectedOrder);
-          const restaurantId = selectedOrder.restaurant;
-          const restaurantResponse = await axiosInstance.get(
-            "/restaurant/profiles"
-          );
-          const restaurantData = restaurantResponse.data.restaurants;
+    if (!orders || orders.length === 0) return;
 
-          const selectedRestaurant = restaurantData.find(
-            (restaurant) => restaurant.id === restaurantId
-          );
-          if (selectedRestaurant) {
-            setRestaurant(selectedRestaurant);
-          } else {
-            console.error("Restaurant not found");
-          }
-        } else {
-          console.error("Order not found");
-        }
-      } catch (error) {
-        console.error("Error fetching order or restaurant data:", error);
-      }
-    };
+    const found = orders.find((o) => o.order_id === Number(id));
 
-    fetchOrders();
-  }, [id]);
+    setOrder(found || null);
+  }, [orders, id]);
 
+  // واکشی رستوران این سفارش
+  const restaurantId = order?.restaurant;
+  const { restaurant, loading: loadingRestaurant } =
+    useSingleRestaurant(restaurantId);
+
+  // ارسال نظر
   const handleSubmit = async () => {
-    if (rating === 0 || !comment.trim()) {
+    if (!rating || !comment.trim()) {
       alert("لطفاً امتیاز و نظر خود را وارد کنید.");
       return;
     }
 
-    const reviewData = {
-      order: parseInt(id),
-      score: parseInt(rating),
-      description: comment,
-    };
-
     try {
-      const response = await axiosInstance.post(
-        "/customer/reviews/create",
-        reviewData
-      );
+      const res = await axiosInstance.post("/customer/reviews/create", {
+        order: Number(id),
+        score: rating,
+        description: comment,
+      });
 
-      if (response.status === 201) {
-        alert("نظر با موفقیت ثبت شد.");
+      if (res.status === 201) {
+        alert("نظر شما با موفقیت ثبت شد.");
         navigate("/customer/orders");
-      } else {
-        alert("مشکلی پیش آمده است. لطفاً دوباره تلاش کنید.");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("خطای سرور. لطفاً دوباره تلاش کنید.");
+    } catch (err) {
+      console.error(err);
+      alert("خطا در ثبت نظر. دوباره تلاش کنید.");
     }
   };
+
+  // اگر سفارش پیدا نشد
+  if (!order)
+    return (
+      <Typography sx={{ mt: 5, textAlign: "center", color: "#fff" }}>
+        سفارش موردنظر یافت نشد.
+      </Typography>
+    );
 
   return (
     <Box
@@ -108,64 +100,55 @@ const ReviewPage = () => {
       >
         <Typography
           variant="h5"
-          sx={{ fontWeight: "bold", color: "#12372A", mb: 3, color: "#fff" }}
+          sx={{ fontWeight: "bold", mb: 3, color: "#fff" }}
         >
-          نظردهی
+          ثبت نظر برای سفارش شماره {order.order_id}
         </Typography>
 
-        {restaurant ? (
+        {/* رستوران */}
+        {!loadingRestaurant && restaurant && (
           <CardMedia
             component="img"
-            image={`http://127.0.0.1:8000${restaurant.photo}`}
-            alt={restaurant.name || "Restaurant Image"}
+            image={
+              restaurant.photo
+                ? `http://127.0.0.1:8000${restaurant.photo}`
+                : PLACEHOLDER_IMG
+            }
+            alt={restaurant.name}
             sx={{
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: 250,
               height: "auto",
-              color: "#fff",
               borderRadius: 2,
               mx: "auto",
               mb: 3,
             }}
           />
-        ) : (
-          <Typography variant="body2" color="text.secondary" mb={3}>
-            در حال بارگذاری اطلاعات رستوران...
-          </Typography>
         )}
 
-        <Typography
-          variant="body1"
-          sx={{ fontWeight: "bold", mb: 1, color: "#fff" }}
-        >
-          به سفارش خود امتیاز دهید
+        <Typography sx={{ fontWeight: "bold", mb: 1, color: "#fff" }}>
+          امتیاز خود را ثبت کنید
         </Typography>
 
         <Rating
-          name="user-rating"
           value={rating}
-          onChange={(event, newValue) => setRating(newValue)}
+          onChange={(e, v) => setRating(v)}
           size="large"
           precision={1}
           sx={{
-            "& .MuiRating-iconEmpty": {
-              color: "#ffffff",
-            },
-            "& .MuiRating-iconFilled": {
-              color: "#ebcc34",
-            },
-            "& .MuiRating-iconHover": {
-              color: "#ebcc34",
-            },
             mb: 2,
+            "& .MuiRating-iconFilled": { color: "#ebcc34" },
+            "& .MuiRating-iconHover": { color: "#ebcc34" },
+            "& .MuiRating-iconEmpty": { color: "#ffffff" },
           }}
         />
 
+        {/* نظر */}
         <TextField
           fullWidth
           multiline
           minRows={3}
-          placeholder="نظر خود را اینجا بنویسید..."
+          placeholder="نظر خود را بنویسید..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           sx={{
