@@ -1,74 +1,46 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  Grid,
-  Avatar,
-} from "@mui/material";
-
-import EditIcon from "@mui/icons-material/Edit";
-import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
+import React, { useEffect, useState } from "react";
+import { Box, Grid } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosInstance from "../../utills/axiosInstance";
-import YumziImg from "../../assets/imgs/yumzi_icon.png";
 
-const RestaurantProfile = () => {
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+import YumziImg from "../../assets/imgs/yumzi_icon.png";
+import axiosInstance from "../../utills/axiosInstance";
+
+import RestaurantProfileInfo from "../../components/RestaurantProfileInfo";
+import RestaurantOptionsList from "../../components/RestaurantOptionsList";
+import LogoutDialog from "../../components/LogoutDialog";
+
+const RestaurantProfilePage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const [info, setInfo] = useState({ name: "", phone: "" });
+  const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+
   useEffect(() => {
-    fetchProfileData();
+    fetchRestaurantInfo();
   }, []);
 
-  const fetchProfileData = async () => {
+  const fetchRestaurantInfo = async () => {
     try {
-      const response = await axiosInstance.get(`/restaurant/profiles/me`);
-      const data = response.data;
-
-      if (data) {
-        setName(data.name || "");
-        const phone = localStorage.getItem("phone");
-        setPhoneNumber(phone || "");
-      }
-    } catch (error) {
-      console.error("Error fetching profile data:", error);
+      const res = await axiosInstance.get("/restaurant/profiles/me");
+      const phone = localStorage.getItem("phone");
+      setInfo({
+        name: res.data.name || "نام فروشگاه",
+        phone: phone || "شماره تماس",
+      });
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  const handleProfileEditClick = () =>
-    navigate(`/restaurant/${id}/profileEdit`);
-  const handleMenuClick = () => navigate(`/restaurant/${id}/menu`);
-  const handleReportClick = () => navigate(`/restaurant/${id}/report`);
-  const handleOrdersClick = () => navigate(`/restaurant/${id}/orders`);
-
-  const handleLogOutClick = () => {
+  const handleLogout = () => {
     localStorage.clear();
     navigate("/");
   };
 
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "#b9c3a7" }}>
-      {/* HEADER */}
+      {/* Header */}
       <Box
         sx={{
           width: "100%",
@@ -87,146 +59,33 @@ const RestaurantProfile = () => {
         />
       </Box>
 
-      {/* PROFILE SECTION */}
       <Grid container justifyContent="center" mt={4}>
         <Grid item xs={11} md={9} lg={10}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              bgcolor: "#e8e9d6",
-              borderRadius: 2,
-              p: 2,
-              mb: 3,
-              flexDirection: { xs: "column-reverse", sm: "row" },
-            }}
-          >
-            {/* Edit Button */}
-            <IconButton onClick={handleProfileEditClick}>
-              <EditIcon sx={{ fontSize: 30, color: "#0f3924" }} />
-            </IconButton>
+          {/* Restaurant Info */}
+          <RestaurantProfileInfo
+            name={info.name}
+            phone={info.phone}
+            onEdit={() => navigate(`/restaurant/${id}/profileEdit`)}
+          />
 
-            {/* Name + Phone + Avatar */}
-            <Box
-              sx={{
-                textAlign: "right",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Box>
-                <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-                  {name || "نام فروشگاه"}
-                </Typography>
-
-                <Typography sx={{ fontSize: "0.9em" }}>
-                  {phoneNumber || "شماره تماس"}
-                </Typography>
-              </Box>
-
-              <AccountCircleIcon sx={{ fontSize: 70, color: "#0f3924" }} />
-            </Box>
-          </Box>
-
-          {/* MAIN LIST (Styled like UserProfilePage) */}
-          <List
-            sx={{
-              bgcolor: "#0f3924",
-              borderRadius: 2,
-              color: "white",
-              p: 1,
-            }}
-          >
-            <ListItem button onClick={handleMenuClick}>
-              <ListItemIcon>
-                <RestaurantMenuIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="منوی فروشگاه"
-                sx={{
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            </ListItem>
-            <Divider sx={{ bgcolor: "#355f4a", my: 1 }} />
-
-            <ListItem button onClick={handleOrdersClick}>
-              <ListItemIcon>
-                <ShoppingBagIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="سفارش‌های فروشگاه"
-                sx={{
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            </ListItem>
-            <Divider sx={{ bgcolor: "#355f4a", my: 1 }} />
-
-            <ListItem button onClick={handleReportClick}>
-              <ListItemIcon>
-                <DescriptionIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="گزارش مالی فروشگاه"
-                sx={{
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            </ListItem>
-            <Divider sx={{ bgcolor: "#355f4a", my: 1 }} />
-
-            <ListItem button onClick={() => setOpenLogoutDialog(true)}>
-              <ListItemIcon>
-                <LogoutIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="خروج از حساب کاربری"
-                sx={{
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            </ListItem>
-          </List>
+          {/* Options List */}
+          <RestaurantOptionsList
+            onMenu={() => navigate(`/restaurant/${id}/menu`)}
+            onOrders={() => navigate(`/restaurant/${id}/orders`)}
+            onReport={() => navigate(`/restaurant/${id}/report`)}
+            onLogout={() => setOpenLogoutDialog(true)}
+          />
         </Grid>
       </Grid>
 
-      {/* LOGOUT DIALOG */}
-      <Dialog
+      {/* Logout Dialog */}
+      <LogoutDialog
         open={openLogoutDialog}
         onClose={() => setOpenLogoutDialog(false)}
-        sx={{ "& .MuiDialog-paper": { borderRadius: 3 } }}
-      >
-        <DialogTitle>تأیید خروج</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            آیا مطمئن هستید که می‌خواهید از حساب خود خارج شوید؟
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenLogoutDialog(false)}>خیر</Button>
-          <Button
-            onClick={handleLogOutClick}
-            variant="contained"
-            color="warning"
-          >
-            بله
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleLogout}
+      />
     </Box>
   );
 };
 
-export default RestaurantProfile;
+export default RestaurantProfilePage;

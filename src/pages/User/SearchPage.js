@@ -1,254 +1,65 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  TextField,
-  InputAdornment,
-  Typography,
-  Card,
-  CardMedia,
-  CardContent,
-  Grid,
-  IconButton,
-} from "@mui/material";
-import { FavoriteBorder, Favorite, Star } from "@mui/icons-material";
-import publicAxiosInstance from "../../utills/publicAxiosInstance";
+import React, { useState } from "react";
+import { Box, TextField, Typography } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AppBar, Toolbar, Button } from "@mui/material";
+import RestaurantCard from "../../components/RestaurantCard";
+import useFavorites from "../../hooks/useFavorites";
+import useRestaurants from "../../hooks/useRestaurants";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
-import SearchIcon from "@mui/icons-material/Search";
-import axiosInstance from "../../utills/axiosInstance";
+import ItemCard from "../../components/ItemCard";
 
-const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
-
-  const checkAuthentication = () => {
-    const accessToken = localStorage.getItem("access");
-    const refreshToken = localStorage.getItem("refresh");
-    setIsLoggedIn(!!(accessToken && refreshToken));
-  };
-
-  useEffect(() => {
-    checkAuthentication();
-    const handleStorageChange = () => {
-      checkAuthentication();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
-  const handleLoginClick = () => {
-    navigate("/login");
-  };
-
-  const handleProfileClick = () => {
-    navigate(`/customer/profile`);
-  };
-
-  return (
-    <AppBar
-      elevation={1}
-      sx={{
-        backgroundColor: "#12372A",
-        boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.2)",
-        height:70,
-      }}
-    >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <button
-          style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-          }}
-          onClick={() => navigate("/")}
-        >
-          <img src={YumziImg} alt="Yumzi Logo" style={{ width: "150px" }} />
-        </button>
-        <Typography
-          variant="h4"
-          sx={{
-            textAlign: "center",
-            color: "#fff",
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-        >
-          لیست رستوران‌ها
-        </Typography>
-        <div>
-          {!isLoggedIn ? (
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                marginTop: "10px !important",
-                width: "130px",
-                height: "45px",
-                borderRadius: "50px !important",
-                fontWeight: "400 !important",
-              }}
-              onClick={handleLoginClick}
-            >
-              ورود یا عضویت
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                marginTop: "10px !important",
-                width: "130px",
-                height: "45px",
-                borderRadius: "50px !important",
-                fontWeight: "400 !important",
-              }}
-              onClick={handleProfileClick}
-            >
-              پروفایل
-            </Button>
-          )}
-        </div>
-      </Toolbar>
-    </AppBar>
-  );
+const categories = {
+  all: "همه",
+  restaurant: "رستوران",
+  cafe: "کافه",
+  bakery: "نانوایی",
+  sweets: "شیرینی",
+  ice_cream: "بستنی",
 };
 
 const RestaurantListPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [restaurants, setRestaurants] = useState([]);
-  const [allRestaurants, setAllRestaurants] = useState([]);
-  const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
   const [businessType, setBusinessType] = useState(
     searchParams.get("business_type") || "all"
   );
-  const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favorites, setFavorites] = useState({});
 
-  const categories = {
-    all: "همه",
-    restaurant: "رستوران",
-    cafe: "کافه",
-    bakery: "نانوایی",
-    sweets: "شیرینی",
-    ice_cream: "بستنی",
-  };
+  const {
+    restaurants = [],
+    allRestaurants = [],
+    items = [],
+    error,
+  } = useRestaurants(searchTerm, businessType);
+  const { favorites, toggleFavorite, isAuthenticated } = useFavorites();
 
-  const fetchRestaurants = async (filters = {}) => {
-    try {
-      const response = await publicAxiosInstance.get("/restaurant/profiles", {
-        params: filters,
-      });
-      const restaurants = await publicAxiosInstance.get("/restaurant/profiles");
-      setAllRestaurants(restaurants.data.restaurants);
-      setRestaurants(response.data.restaurants);
-      setItems(response.data.items);
-    } catch (err) {
-      setError("خطا در دریافت اطلاعات رستوران‌ها");
-    }
-  };
+  const handleCategoryClick = (type) => setBusinessType(type);
 
-  useEffect(() => {
-    const filters = {};
-    if (searchTerm.trim()) {
-      filters.query = searchTerm.trim();
-    }
-    if (businessType !== "all") {
-      filters.business_type = businessType;
-    }
-
-    fetchRestaurants(filters);
-
-    const params = new URLSearchParams(filters);
-    navigate(`/search?${params.toString()}`);
-  }, [searchTerm, businessType]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    setIsAuthenticated(!!token);
-  }, []);
-
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        if (localStorage.getItem("access")) {
-          const response = await axiosInstance.get("/customer/favorites");
-          const favoritesMap = {};
-          response.data.forEach((fav) => {
-            favoritesMap[fav.restaurant] = true;
-          });
-          setFavorites(favoritesMap);
-        }
-      } catch (error) {
-        console.error("Error fetching favorites:", error);
-      }
-    };
-
-    fetchFavorites();
-  }, [isAuthenticated]);
-
-  const toggleFavorite = async (restaurantId) => {
-    if (!isAuthenticated) {
-      alert("لطفا ابتدا وارد حساب کاربری خود شوید!");
-      return;
-    }
-
-    try {
-      if (favorites[restaurantId]) {
-        const response = await axiosInstance.delete(`/customer/favorites`, {
-          params: { restaurant_id: restaurantId },
-        });
-
-        if (response.status === 204) {
-          setFavorites((prevFavorites) => ({
-            ...prevFavorites,
-            [restaurantId]: false,
-          }));
-        }
-      } else {
-        const response = await axiosInstance.post("/customer/favorites", {
-          restaurant_id: restaurantId,
-        });
-
-        if (response.status === 201) {
-          setFavorites((prevFavorites) => ({
-            ...prevFavorites,
-            [restaurantId]: true,
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-    }
-  };
-
-  const handleCategoryClick = (type) => {
-    setBusinessType(type);
-  };
-
-  const findRestaurantName = (restaurantId) => {
-    const restaurant = allRestaurants.find((rest) => rest.id === restaurantId);
-    return restaurant.name;
-  };
+  const findRestaurantName = (restaurantId) =>
+    allRestaurants.find((r) => r.id === restaurantId)?.name || "";
 
   return (
-    <Box
-      sx={{
-        padding: 3,
-        height: "100vh",
-        width: "100%",
-        backgroundColor: "#FBFADA",
-      }}
-    >
-      <Header />
+    <Box sx={{ pb: 8, minHeight: "100vh", backgroundColor: "#ADBC9F" }}>
+      {/* HEADER (Logo Only) */}
+      <Box
+        sx={{
+          width: "100%",
+          height: 100,
+          bgcolor: "#0f3924",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white",
+        }}
+      >
+        <img
+          src={YumziImg}
+          alt="yumzi"
+          style={{ height: 60, cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        />
+      </Box>
 
+      {/* Search */}
       <Box
         sx={{ display: "flex", justifyContent: "center", marginTop: "60px" }}
       >
@@ -257,39 +68,17 @@ const RestaurantListPage = () => {
           placeholder="جستجوی نام فروشگاه یا غذا..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{
-            marginBottom: 3,
-            width: "80%",
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-              "& fieldset": {
-                borderColor: "#9c9c9c",
-              },
-              "&:hover fieldset": {
-                borderColor: "#a8a8a8",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "#888888",
-              },
-            },
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#12372A" }} />
-              </InputAdornment>
-            ),
-          }}
+          sx={{ width: "80%", marginBottom: 3 }}
         />
       </Box>
 
+      {/* Categories */}
       <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
         {Object.entries(categories).map(([key, label]) => (
           <Typography
             key={key}
             onClick={() => handleCategoryClick(key)}
             sx={{
-              pointerEvents: "auto",
               cursor: "pointer",
               padding: 1,
               margin: 1,
@@ -303,149 +92,71 @@ const RestaurantListPage = () => {
           </Typography>
         ))}
       </Box>
-      {/* نمایش رستوران‌ها */}
+
+      {/* Restaurants */}
       {error && <Typography color="error">{error}</Typography>}
-      <Grid container spacing={3} justifyContent="center">
-        {restaurants.map((restaurant) => (
-          <Grid item xs={12} sm={6} md={2} key={restaurant.id}>
-            <Card
-              onClick={() => navigate(`/customer/restaurants/${restaurant.id}`)}
-              sx={{
-                cursor: "pointer",
-                p: 2,
-                m: 1,
-                minWidth: 230,
-                borderRadius: "20px",
-                backgroundColor: "#fff",
-                boxShadow: 0,
-                height: "90%",
-                transition: "all 0.3s ease",
-                position: "relative",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  border: "2px solid #12372A",
-                },
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="140"
-                image={
-                  restaurant.photo
-                    ? `http://127.0.0.1:8000${restaurant.photo}`
-                    : "https://via.placeholder.com/120"
-                }
-                alt={restaurant.name}
-                sx={{ borderRadius: "12px", objectFit: "cover" }}
-              />
-
-              <CardContent>
-                <Typography variant="h6">
-                  {restaurant.name} ({restaurant.city_name})
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  <Star sx={{ pt: "12px" }} /> امتیاز: {restaurant.score}
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  هزینه ارسال:{" "}
-                  {Math.floor(parseFloat(restaurant.delivery_price))} تومان
-                </Typography>
-              </CardContent>
-
-              <IconButton
-                sx={{ position: "absolute", top: 8, right: 8 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(restaurant.id);
-                }}
-              >
-                {favorites[restaurant.id] ? (
-                  <Favorite sx={{ color: "red" }} />
-                ) : (
-                  <FavoriteBorder />
-                )}
-              </IconButton>
-            </Card>
-          </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          paddingInline: "30px",
+          justifyContent: "flex-end", // راست‌چین کردن container
+          gap: 2,
+          direction: "rtl", // می‌تواند روی متن‌ها هم تاثیر داشته باشد
+        }}
+      >
+        {(restaurants || []).map((restaurant) => (
+          <RestaurantCard
+            key={restaurant.id}
+            restaurant={restaurant}
+            isFavorite={!!favorites[restaurant.id]}
+            toggleFavorite={toggleFavorite}
+            onClick={() => navigate(`/customer/restaurants/${restaurant.id}`)}
+          />
         ))}
-      </Grid>
+      </Box>
 
-      {searchTerm && items.length > 0 && (
-        <>
-          <Typography variant="h5" sx={{ marginY: 3 }}>
+      {/* Items */}
+      {searchTerm && (items || []).length > 0 && (
+        <Box sx={{ marginTop: 4, paddingInline: "30px" }}>
+          <Typography variant="h5" sx={{ marginBottom: 2 }}>
             آیتم‌ها
           </Typography>
-          <Grid container spacing={3}>
-            {items.map((item) => (
-              <Grid item xs={12} sm={6} md={2} key={item.item_id}>
-                <Card
-                  sx={{
-                    cursor: "pointer",
-                    padding: 1,
-                    paddingBottom: 0,
-                    minHeight: "330px",
-                    borderRadius: "16px",
-                    "&:hover": {
-                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
-                    },
-                  }}
-                  onClick={() =>
-                    navigate(
-                      `/customer/restaurants/${item.restaurant}/${item.item_id}`
-                    )
-                  }
-                >
-                  <CardMedia
-                    component="img"
-                    height="150"
-                    image={`http://localhost:8000${item.photo}`}
-                    alt={item.name}
-                    sx={{ borderRadius: 2 }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6">{item.name}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ marginTop: 1 }}
-                    >
-                      رستوران: {findRestaurantName(item.restaurant)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ marginTop: 1 }}
-                    >
-                      {item.description || " "}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        marginTop: 0.5,
-                      }}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        قیمت:
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {Math.floor(item.price / 1000) || "نامشخص"} هزار تومان
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              justifyContent: "flex-end",
+              direction: "rtl",
+            }}
+          >
+            {(items || []).map((item) => (
+              <ItemCard
+                key={item.item_id}
+                item={{
+                  ...item,
+                  restaurant_name: findRestaurantName(item.restaurant),
+                }}
+                onClick={() =>
+                  navigate(
+                    `/customer/restaurants/${item.restaurant}/${item.item_id}`
+                  )
+                }
+              />
             ))}
-          </Grid>
-        </>
+          </Box>
+        </Box>
       )}
 
-      {restaurants.length === 0 && items.length === 0 && !error && (
-        <Typography sx={{ textAlign: "center", marginTop: 3 }}>
-          هیچ موردی یافت نشد.
-        </Typography>
-      )}
+      {/* Empty state */}
+      {(restaurants || []).length === 0 &&
+        (items || []).length === 0 &&
+        !error && (
+          <Typography sx={{ textAlign: "center", marginTop: 3 }}>
+            هیچ موردی یافت نشد.
+          </Typography>
+        )}
     </Box>
   );
 };

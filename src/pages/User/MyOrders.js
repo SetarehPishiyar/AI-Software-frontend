@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -15,9 +15,8 @@ import Grid from "@mui/material/Grid2";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import moment from "moment-jalaali";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../utills/axiosInstance";
-import publicAxiosInstance from "../../utills/publicAxiosInstance";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
+import { useOrders } from "../../hooks/useOrders"; 
 
 const deliveryMethodMap = {
   pickup: "دریافت حضوری",
@@ -30,44 +29,10 @@ const paymentMethodMap = {
 };
 
 const MyOrders = () => {
-  const [orders, setOrders] = useState([]);
-  const [openIndex, setOpenIndex] = useState(null);
-  const [reviewsMap, setReviewsMap] = useState({}); // key = order_id, value = review or null
   const navigate = useNavigate();
   const userId = JSON.parse(localStorage.getItem("user"))?.user?.id;
-
-  useEffect(() => {
-    axiosInstance
-      .get("/customer/orders")
-      .then((response) => {
-        setOrders(response.data);
-        response.data.forEach((order) => fetchOrderReview(order));
-      })
-      .catch(() => {});
-  }, []);
-
-  const fetchOrderReview = async (order) => {
-    if (!order.order_items || order.order_items.length === 0) return;
-
-    // برای هر آیتم سفارش، ریویوها رو چک کن
-    for (let item of order.order_items) {
-      try {
-        const res = await publicAxiosInstance.get(
-          `/customer/items/${item.item_id}/reviews/`
-        );
-        const myReview = res.data.find((r) => r.user_id === userId);
-        if (myReview) {
-          setReviewsMap((prev) => ({ ...prev, [order.order_id]: myReview }));
-          return; // اگر ریویو پیدا شد، دیگه نیازی به چک بقیه آیتم‌ها نیست
-        }
-      } catch (err) {
-        console.error("Error fetching review:", err);
-      }
-    }
-
-    // اگر ریویو پیدا نشد
-    setReviewsMap((prev) => ({ ...prev, [order.order_id]: null }));
-  };
+  const { orders, reviewsMap } = useOrders(userId);
+  const [openIndex, setOpenIndex] = useState(null);
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -133,6 +98,7 @@ const MyOrders = () => {
                 p: 2,
               }}
             >
+              {/* CARD CONTENT */}
               <CardContent>
                 <Typography
                   sx={{
@@ -143,35 +109,28 @@ const MyOrders = () => {
                 >
                   سفارش شماره {order.order_id}
                 </Typography>
-
                 <Typography
                   sx={{ mt: 1, fontWeight: "bold", color: "#12372A" }}
                 >
                   {order.restaurant_name}
                 </Typography>
-
                 <Typography sx={{ mt: 1, color: "#333" }}>
                   {order.description}
                 </Typography>
-
                 <Typography sx={{ mt: 2, color: "#555" }}>
                   تاریخ سفارش:{" "}
                   {moment(order.order_date).format("jYYYY/jMM/jDD")} -{" "}
                   {moment(order.order_date).format("HH:mm")}
                 </Typography>
-
                 <Typography sx={{ mt: 1, color: "#555" }}>
                   آدرس: {order.address}
                 </Typography>
-
                 <Typography sx={{ mt: 1, color: "#555" }}>
                   روش ارسال: {deliveryMethodMap[order.delivery_method]}
                 </Typography>
-
                 <Typography sx={{ mt: 1, color: "#555" }}>
                   روش پرداخت: {paymentMethodMap[order.payment_method]}
                 </Typography>
-
                 <Typography
                   sx={{ mt: 2, fontWeight: "bold", color: "#12372A" }}
                 >
@@ -180,6 +139,7 @@ const MyOrders = () => {
                 </Typography>
               </CardContent>
 
+              {/* CARD ACTIONS */}
               <CardActions
                 sx={{
                   display: "flex",
@@ -188,7 +148,6 @@ const MyOrders = () => {
                   gap: 1,
                 }}
               >
-                {/* LEFT BUTTONS */}
                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                   {order.state === "completed" ? (
                     <Button
@@ -230,9 +189,8 @@ const MyOrders = () => {
                     سفارش مجدد
                   </Button>
 
-                  {/* REVIEW */}
                   {order.state === "completed" && (
-                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    <>
                       {reviewsMap[order.order_id] ? (
                         <Button
                           variant="contained"
@@ -262,11 +220,10 @@ const MyOrders = () => {
                           ثبت نظر
                         </Button>
                       )}
-                    </Box>
+                    </>
                   )}
                 </Box>
 
-                {/* COLLAPSE BUTTON */}
                 <Button
                   sx={{
                     bgcolor: "#0f3924",
@@ -274,9 +231,7 @@ const MyOrders = () => {
                     "&:hover": { bgcolor: "#12372A" },
                     minWidth: 40,
                   }}
-                  onClick={() =>
-                    setOpenIndex(openIndex === index ? null : index)
-                  }
+                  onClick={() => handleCollapseToggle(index)}
                 >
                   <ExpandMoreIcon />
                 </Button>
