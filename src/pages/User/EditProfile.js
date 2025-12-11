@@ -1,42 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GoogleMapReact from "google-map-react";
 import { Box, TextField, Button, Typography } from "@mui/material";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { getUserInfo, logout } from "../../services/userService";
 import axiosInstance from "../../utills/axiosInstance";
 
 const EditProfile = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-  const [name, setName] = useState(user?.user?.first_name);
-  const [familyName, setFamilyName] = useState(user?.user?.last_name);
-  const [address, setAddress] = useState(
-    user?.address?.split("@")[0] || "آدرس"
-  );
-  const [Department, setDepartment] = useState(
-    user?.address?.split("@")[1] || ""
-  );
-  const [mapCenter, setMapCenter] = useState({
-    lat: parseFloat(user?.latitude) || 35.6892,
-    lng: parseFloat(user?.longitude) || 51.389,
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [familyName, setFamilyName] = useState("");
+  const [address, setAddress] = useState("آدرس");
+  const [Department, setDepartment] = useState("");
+  const [mapCenter, setMapCenter] = useState({ lat: 35.6892, lng: 51.389 });
+  const [mapMarker, setMapMarker] = useState({ lat: 35.6892, lng: 51.389 });
 
-  const [mapMarker, setMapMarker] = useState({
-    lat: parseFloat(user?.latitude) || 35.6892,
-    lng: parseFloat(user?.longitude) || 51.389,
-  });
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      const data = await getUserInfo();
+      if (!data) {
+        navigate("/login");
+        return;
+      }
+      setUser(data);
+      setName(data.user?.first_name || "");
+      setFamilyName(data.user?.last_name || "");
+      const addrParts = data.address?.split("@") || [];
+      setAddress(addrParts[0] || "آدرس");
+      setDepartment(addrParts[1] || "");
+      setMapCenter({
+        lat: parseFloat(data.latitude) || 35.6892,
+        lng: parseFloat(data.longitude) || 51.389,
+      });
+      setMapMarker({
+        lat: parseFloat(data.latitude) || 35.6892,
+        lng: parseFloat(data.longitude) || 51.389,
+      });
+      setLoading(false);
+    };
+    fetchUser();
+  }, [navigate]);
 
-  const handleFieldChange = (setter) => (e) => {
-    setter(e.target.value);
-  };
+  const handleFieldChange = (setter) => (e) => setter(e.target.value);
 
   const handleSave = async () => {
     try {
       const userObject = {
-        user: {
-          first_name: name,
-          last_name: familyName,
-        },
+        user: { first_name: name, last_name: familyName },
         address: address + "@" + Department,
         longitude: mapMarker.lng.toFixed(6).toString(),
         latitude: mapMarker.lat.toFixed(6).toString(),
@@ -48,9 +61,6 @@ const EditProfile = () => {
           accept: "application/json",
         },
       });
-
-      const response = await axiosInstance.get("/customer/profile");
-      localStorage.setItem("user", JSON.stringify(response.data));
 
       alert("اطلاعات با موفقیت ذخیره شد.");
       navigate("/customer/profile");
@@ -89,7 +99,6 @@ const EditProfile = () => {
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&language=fa`
       );
       const data = await response.json();
-
       if (data && data.address) {
         const road = data.address.road || "";
         const neighbourhood = data.address.neighbourhood || "";
@@ -113,61 +122,47 @@ const EditProfile = () => {
     fetchAddress(lat, lng);
   };
 
+  if (loading)
+    return <Box sx={{ textAlign: "center", mt: 5 }}>در حال بارگذاری...</Box>;
+
   return (
     <Box
-      style={{
+      sx={{
         width: "100%",
         height: "auto",
-        margin: "0 auto",
         paddingTop: "120px",
-        paddingRight: "15px",
-        paddingLeft: "15px",
-        backgroundColor: "#ADBC9F",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        boxSizing: "border-box",
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        paddingX: 2,
+        bgcolor: "#ADBC9F",
       }}
     >
       {/* Header */}
       <Box
-        style={{
-          backgroundColor: "#12372A",
-          padding: "15px",
+        sx={{
+          bgcolor: "#12372A",
+          padding: 2,
           position: "fixed",
           top: 0,
           width: "100%",
           height: 90,
           textAlign: "center",
           zIndex: 1000,
-          boxSizing: "border-box",
         }}
       >
-        <Typography
-          variant="h4"
-          style={{
-            color: "white",
-            fontWeight: "bold",
-          }}
-        >
+        <Typography variant="h4" sx={{ color: "white", fontWeight: "bold" }}>
           ویرایش اطلاعات
         </Typography>
       </Box>
 
       {/* Profile Form */}
       <Box
-        style={{
+        sx={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: 2,
           width: "80%",
-          height: "auto",
+          mx: "auto",
         }}
       >
-        {/* Name Field */}
         <TextField
           InputProps={{
             sx: {
@@ -179,11 +174,10 @@ const EditProfile = () => {
           placeholder="نام"
           variant="outlined"
           fullWidth
-          style={{ backgroundColor: "#12372A", borderRadius: "8px" }}
+          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
           onChange={handleFieldChange(setName)}
         />
 
-        {/* Family Name Field */}
         <TextField
           InputProps={{
             sx: {
@@ -195,20 +189,11 @@ const EditProfile = () => {
           placeholder="نام خانوادگی"
           variant="outlined"
           fullWidth
-          style={{ backgroundColor: "#12372A", borderRadius: "8px" }}
+          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
           onChange={handleFieldChange(setFamilyName)}
         />
 
-        {/* Google Map */}
-        <Box
-          style={{
-            height: "400px",
-            borderRadius: "8px",
-            overflow: "hidden",
-            marginBottom: "10px",
-            position: "relative",
-          }}
-        >
+        <Box sx={{ height: 400, borderRadius: 1, overflow: "hidden", mb: 1 }}>
           <GoogleMapReact
             bootstrapURLKeys={{
               key: "AIzaSyD5AZ9092BIIq6gW9SWqdRJ9MBRgTLHLPY",
@@ -218,11 +203,9 @@ const EditProfile = () => {
             onClick={({ lat, lng }) => handleMapClick({ lat, lng })}
           >
             <div
-              data-lat={mapMarker.lat}
-              data-lng={mapMarker.lng}
               style={{
                 color: "red",
-                fontSize: "24px",
+                fontSize: 24,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -231,51 +214,34 @@ const EditProfile = () => {
           </GoogleMapReact>
         </Box>
 
-        {/* Current Location Button */}
         <Button
-          style={{
-            backgroundColor: "#ADBC9F",
+          sx={{
+            bgcolor: "#ADBC9F",
             color: "white",
             fontWeight: "bold",
-            // padding: "10px",
-            marginTop: "5px",
-            borderRadius: "8px",
-            textAlign: "center",
+            borderRadius: 1,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
+            alignItems: "center",
           }}
           onClick={handleGetCurrentLocation}
         >
           <FaMapMarkerAlt
-            style={{ color: "black", marginRight: "5px", fontSize: "25px" }}
+            style={{ color: "black", marginRight: 5, fontSize: 25 }}
           />
         </Button>
 
-        {/* Address Field */}
         <TextField
           value={address}
           placeholder="آدرس"
           variant="outlined"
           fullWidth
           disabled
-          onChange={handleFieldChange(setAddress)}
-          style={{ backgroundColor: "#12372A", borderRadius: "8px" }}
-          InputProps={{
-            sx: {
-              "& .MuiInputBase-input.Mui-disabled": {
-                WebkitTextFillColor: "white !important",
-              },
-              "& .Mui-disabled": {
-                color: "white !important",
-                opacity: 1,
-              },
-            },
-          }}
-          inputProps={{
-            style: {
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            "& .MuiInputBase-input.Mui-disabled": {
               WebkitTextFillColor: "white",
-              color: "white",
             },
           }}
         />
@@ -291,21 +257,18 @@ const EditProfile = () => {
           placeholder="پلاک و واحد"
           variant="outlined"
           fullWidth
-          style={{ backgroundColor: "#12372A", borderRadius: "8px" }}
+          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
           onChange={handleFieldChange(setDepartment)}
         />
 
-        {/* Save Button */}
         <Button
           variant="contained"
-          color="primary"
-          style={{
-            backgroundColor: "#12372A",
-            color: "white",
+          sx={{
+            bgcolor: "#12372A !important",
+            color: "white !important",
             fontWeight: "bold",
-            padding: "10px",
-            borderRadius: "8px",
-            textAlign: "center",
+            p: 1,
+            borderRadius: 1,
           }}
           onClick={handleSave}
         >

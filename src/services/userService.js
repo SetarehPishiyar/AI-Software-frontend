@@ -1,15 +1,15 @@
 import axiosInstance from "../utills/axiosInstance";
 
-export const getUserInfo = () => {
+export const getUserInfo = async () => {
   try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    return user;
+    const response = await axiosInstance.get("/customer/profile");
+    return response.data;
   } catch (err) {
-    console.error(err);
+    console.error("خطا در دریافت اطلاعات کاربر:", err);
     return null;
   }
 };
 
 export const logout = () => {
-  localStorage.clear();
-};
+  localStorage.clear()
+}

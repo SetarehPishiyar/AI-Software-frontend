@@ -51,7 +51,6 @@ function App() {
       <RTLProvider>
         <UserProvider>
           <FoodCartProvider>
-            <Router>
               <Routes>
                 <Route
                   path="/"
@@ -204,7 +203,6 @@ function App() {
                   }
                 />
               </Routes>
-            </Router>
           </FoodCartProvider>
         </UserProvider>
       </RTLProvider>

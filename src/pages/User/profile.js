@@ -1,17 +1,27 @@
-// src/pages/UserProfilePage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
 import UserProfileInfo from "../../components/UserProfileInfo";
 import UserOptionsList from "../../components/UserOptionsList";
 import LogoutDialog from "../../components/LogoutDialog";
+import { getUserInfo, logout } from "../../services/userService";
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      const data = await getUserInfo();
+      setUser(data);
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
 
   // HANDLERS
   const handleEditClick = () => navigate("/customer/edit-profile");
@@ -19,9 +29,17 @@ const UserProfilePage = () => {
   const handleFavorites = () => navigate("/customer/favorites");
   const handleOrdersHistory = () => navigate("/customer/orders");
   const handleLogOutClick = () => {
-    localStorage.clear();
+    logout();
     navigate("/");
   };
+
+  if (loading)
+    return <Box sx={{ textAlign: "center", mt: 5 }}>در حال بارگذاری...</Box>;
+
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
 
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "#b9c3a7" }}>

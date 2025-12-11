@@ -4,7 +4,7 @@ import publicAxiosInstance from "../utills/publicAxiosInstance";
 
 export const useOrders = (userId) => {
   const [orders, setOrders] = useState([]);
-  const [reviewsMap, setReviewsMap] = useState({}); // key = order_id, value = review or null
+  const [reviewsMap, setReviewsMap] = useState({}); 
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -18,7 +18,7 @@ export const useOrders = (userId) => {
           let found = false;
           for (let item of order.order_items) {
             const res = await publicAxiosInstance.get(
-              `/customer/items/${item.item_id}/reviews/`
+              `/customer/items/${item.id}/reviews/`
             );
             const myReview = res.data.find((r) => r.user_id === userId);
             if (myReview) {

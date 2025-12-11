@@ -13,38 +13,50 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useOrders } from "../../hooks/useOrders";
 import useSingleRestaurant from "../../components/SingleRestaurantFetcher";
+import { getUserInfo } from "../../services/userService";
 
 import axiosInstance from "../../utills/axiosInstance";
-import { PLACEHOLDER_IMG } from "../../utills/constants"; // اگر نداری، خودم پایین می‌نویسم
+import { PLACEHOLDER_IMG } from "../../utills/constants"; 
 
 const ReviewPage = () => {
   const { id } = useParams(); // order_id
   const navigate = useNavigate();
-
   const { isLoggedIn } = useAuthContext();
 
-  const userId = JSON.parse(localStorage.getItem("user"))?.user?.id;
-  const { orders } = useOrders(userId);
-
+  const [user, setUser] = useState(null);
   const [order, setOrder] = useState(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  // وقتی سفارش‌ها از useOrders لود شد → سفارش موردنظر را پیدا کن
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoadingUser(true);
+      const data = await getUserInfo();
+      if (!data) {
+        navigate("/login");
+        return;
+      }
+      setUser(data);
+      setLoadingUser(false);
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const userId = user?.user?.id;
+  const { orders } = useOrders(userId);
+
   useEffect(() => {
     if (!orders || orders.length === 0) return;
 
     const found = orders.find((o) => o.order_id === Number(id));
-
     setOrder(found || null);
   }, [orders, id]);
 
-  // واکشی رستوران این سفارش
   const restaurantId = order?.restaurant;
   const { restaurant, loading: loadingRestaurant } =
     useSingleRestaurant(restaurantId);
 
-  // ارسال نظر
   const handleSubmit = async () => {
     if (!rating || !comment.trim()) {
       alert("لطفاً امتیاز و نظر خود را وارد کنید.");
@@ -68,13 +80,21 @@ const ReviewPage = () => {
     }
   };
 
-  // اگر سفارش پیدا نشد
-  if (!order)
+  if (loadingUser) {
+    return (
+      <Typography sx={{ mt: 5, textAlign: "center", color: "#fff" }}>
+        در حال بارگذاری...
+      </Typography>
+    );
+  }
+
+  if (!order) {
     return (
       <Typography sx={{ mt: 5, textAlign: "center", color: "#fff" }}>
         سفارش موردنظر یافت نشد.
       </Typography>
     );
+  }
 
   return (
     <Box
@@ -143,7 +163,6 @@ const ReviewPage = () => {
           }}
         />
 
-        {/* نظر */}
         <TextField
           fullWidth
           multiline
