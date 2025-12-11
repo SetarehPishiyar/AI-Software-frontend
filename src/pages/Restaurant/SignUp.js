@@ -93,7 +93,7 @@ function SignUp() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/signup/restaurant",
+        "http://localhost/api/auth/signup/restaurant",
         RestaurantData
       );
 
