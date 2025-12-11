@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AuthProvider } from "./contexts/AuthContext";
 import { RestaurantProvider } from "./contexts/RestaurantContext";
+import { BrowserRouter } from "react-router-dom";
 
 document.documentElement.lang = "fa";
 document.documentElement.dir = "rtl";
@@ -19,11 +20,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <RestaurantProvider>
-          <App />
-        </RestaurantProvider>
-      </AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <RestaurantProvider>
+            <App />
+          </RestaurantProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>
 );

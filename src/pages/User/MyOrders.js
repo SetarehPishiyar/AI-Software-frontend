@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -16,7 +16,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import moment from "moment-jalaali";
 import { useNavigate } from "react-router-dom";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
-import { useOrders } from "../../hooks/useOrders"; 
+import { useOrders } from "../../hooks/useOrders";
+import { getUserInfo } from "../../services/userService";
 
 const deliveryMethodMap = {
   pickup: "دریافت حضوری",
@@ -30,13 +31,41 @@ const paymentMethodMap = {
 
 const MyOrders = () => {
   const navigate = useNavigate();
-  const userId = JSON.parse(localStorage.getItem("user"))?.user?.id;
-  const { orders, reviewsMap } = useOrders(userId);
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [openIndex, setOpenIndex] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoadingUser(true);
+      const data = await getUserInfo();
+      if (!data) {
+        navigate("/login");
+        return;
+      }
+      setUser(data);
+      setLoadingUser(false);
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const userId = user?.user?.id;
+  const { orders, reviewsMap } = useOrders(userId);
+
+
+  console.log(useOrders(userId))
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  if (loadingUser) {
+    return (
+      <Typography sx={{ mt: 5, textAlign: "center", color: "#0f3924" }}>
+        در حال بارگذاری اطلاعات کاربر...
+      </Typography>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%", minHeight: "120vh", bgcolor: "#b9c3a7" }}>
