@@ -6,7 +6,7 @@ export const getUserInfo = async () => {
     const url = resID ? `/restaurant/profiles/me` : "/customer/profile";
 
     const response = await axiosInstance.get(url);
-    console.log(response.data)
+    // console.log(response.data)
     return response.data;
   } catch (err) {
     console.error("خطا در دریافت اطلاعات کاربر:", err);

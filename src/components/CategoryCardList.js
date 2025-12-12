@@ -2,18 +2,18 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
-import restaurantImg from "../assets/imgs/restaurant.png";
-import cafeImg from "../assets/imgs/cafe.png";
-import sweetsImg from "../assets/imgs/sweets.png";
-import iceCreamImg from "../assets/imgs/ice_cream.png";
-import bakeryImg from "../assets/imgs/bakery.png";
+import iranianImg from "../assets/imgs/iranian.png";
+import fastfoodImg from "../assets/imgs/fastfood.png";
+import italianImg from "../assets/imgs/italian.png";
+import asianImg from "../assets/imgs/asian.png";
+import mexicanImg from "../assets/imgs/mexican.png";
 
 const categories = [
-  { title: "رستوران", image: restaurantImg, type: "restaurant" },
-  { title: "کافه", image: cafeImg, type: "cafe" },
-  { title: "شیرینی", image: sweetsImg, type: "sweets" },
-  { title: "آبمیوه و بستنی", image: iceCreamImg, type: "ice_cream" },
-  { title: "نانوایی", image: bakeryImg, type: "bakery" },
+  { title: "ایرانی", image: iranianImg, type: "Iranian" },
+  { title: "فست فود", image: fastfoodImg, type: "FastFood" },
+  { title: "ایتالیایی", image: italianImg, type: "Italian" },
+  { title: "آسیایی", image: asianImg, type: "Asian" },
+  { title: "مکزیکی", image: mexicanImg, type: "Mexican" },
 ];
 
 const CategoryCardList = () => {

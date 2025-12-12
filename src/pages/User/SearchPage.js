@@ -9,11 +9,11 @@ import ItemCard from "../../components/ItemCard";
 
 const categories = {
   all: "همه",
-  restaurant: "رستوران",
-  cafe: "کافه",
-  bakery: "نانوایی",
-  sweets: "شیرینی",
-  ice_cream: "بستنی",
+  Iranian: "ایرانی",
+  FastFood: "فست فود",
+  Italian: "ایتالیایی",
+  Asian: "آسیایی",
+  Mexican: "مکزیکی",
 };
 
 const RestaurantListPage = () => {
