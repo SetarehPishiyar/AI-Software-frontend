@@ -35,7 +35,6 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // فیلدهای جدید
   const [province, setProvince] = useState("");
   const [diet, setDiet] = useState("");
   const [gender, setGender] = useState("");
@@ -43,7 +42,6 @@ function SignUp() {
 
   const navigate = useNavigate();
 
-  // لیست شهرهای استان تهران
   const iranProvinces = [
     { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
     { fa: "آذربایجان غربی", en: "West Azerbaijan" },
@@ -91,7 +89,6 @@ function SignUp() {
   };
 
   const formatBirthdate = (dateStr) => {
-    // تبدیل YYYY-MM-DD به YYYY/MM/DD
     return dateStr.replace(/-/g, "/");
   };
 

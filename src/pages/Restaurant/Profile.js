@@ -54,8 +54,7 @@ const RestaurantProfilePage = () => {
         <img
           src={YumziImg}
           alt="yumzi"
-          style={{ height: 60, cursor: "pointer" }}
-          onClick={() => navigate("/")}
+          style={{ height: 60 }}
         />
       </Box>
 

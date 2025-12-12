@@ -1,21 +1,73 @@
 import React, { useState, useEffect } from "react";
 import GoogleMapReact from "google-map-react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  MenuItem,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Divider,
+} from "@mui/material";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getUserInfo, logout } from "../../services/userService";
+import { getUserInfo } from "../../services/userService";
 import axiosInstance from "../../utills/axiosInstance";
+
+const iranProvinces = [
+  { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
+  { fa: "آذربایجان غربی", en: "West Azerbaijan" },
+  { fa: "اردبیل", en: "Ardabil" },
+  { fa: "اصفهان", en: "Isfahan" },
+  { fa: "البرز", en: "Alborz" },
+  { fa: "ایلام", en: "Ilam" },
+  { fa: "بوشهر", en: "Bushehr" },
+  { fa: "تهران", en: "Tehran" },
+  { fa: "چهارمحال و بختیاری", en: "Chaharmahal and Bakhtiari" },
+  { fa: "خراسان جنوبی", en: "South Khorasan" },
+  { fa: "خراسان رضوی", en: "Razavi Khorasan" },
+  { fa: "خراسان شمالی", en: "North Khorasan" },
+  { fa: "خوزستان", en: "Khuzestan" },
+  { fa: "زنجان", en: "Zanjan" },
+  { fa: "سمنان", en: "Semnan" },
+  { fa: "سیستان و بلوچستان", en: "Sistan and Baluchestan" },
+  { fa: "فارس", en: "Fars" },
+  { fa: "قزوین", en: "Qazvin" },
+  { fa: "قم", en: "Qom" },
+  { fa: "کردستان", en: "Kurdistan" },
+  { fa: "کرمان", en: "Kerman" },
+  { fa: "کرمانشاه", en: "Kermanshah" },
+  { fa: "کهگیلویه و بویراحمد", en: "Kohgiluyeh and Boyer-Ahmad" },
+  { fa: "گلستان", en: "Golestan" },
+  { fa: "گیلان", en: "Gilan" },
+  { fa: "لرستان", en: "Lorestan" },
+  { fa: "مازندران", en: "Mazandaran" },
+  { fa: "مرکزی", en: "Markazi" },
+  { fa: "هرمزگان", en: "Hormozgan" },
+  { fa: "همدان", en: "Hamedan" },
+  { fa: "یزد", en: "Yazd" },
+];
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
   const [name, setName] = useState("");
   const [familyName, setFamilyName] = useState("");
+  const [province, setProvince] = useState("");
+  const [diet, setDiet] = useState("normal");
+  const [birthdate, setBirthdate] = useState("");
+  const [gender, setGender] = useState("M");
+
   const [address, setAddress] = useState("آدرس");
   const [Department, setDepartment] = useState("");
   const [mapCenter, setMapCenter] = useState({ lat: 35.6892, lng: 51.389 });
   const [mapMarker, setMapMarker] = useState({ lat: 35.6892, lng: 51.389 });
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,9 +80,17 @@ const EditProfile = () => {
       setUser(data);
       setName(data.user?.first_name || "");
       setFamilyName(data.user?.last_name || "");
+      setProvince(data.province || "");
+      setDiet(
+        data.diet_groups?.includes("diet:vegetarian") ? "vegetarian" : "normal"
+      );
+      setBirthdate(data.birthdate || "");
+      setGender(data.gender_groups?.includes("gender:M") ? "M" : "F");
+
       const addrParts = data.address?.split("@") || [];
       setAddress(addrParts[0] || "آدرس");
       setDepartment(addrParts[1] || "");
+
       setMapCenter({
         lat: parseFloat(data.latitude) || 35.6892,
         lng: parseFloat(data.longitude) || 51.389,
@@ -45,48 +105,18 @@ const EditProfile = () => {
   }, [navigate]);
 
   const handleFieldChange = (setter) => (e) => setter(e.target.value);
-
-  const handleSave = async () => {
-    try {
-      const userObject = {
-        user: { first_name: name, last_name: familyName },
-        address: address + "@" + Department,
-        longitude: mapMarker.lng.toFixed(6).toString(),
-        latitude: mapMarker.lat.toFixed(6).toString(),
-      };
-
-      await axiosInstance.patch("/customer/profile", userObject, {
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-      });
-
-      alert("اطلاعات با موفقیت ذخیره شد.");
-      navigate("/customer/profile");
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Response:", error.response.data);
-      } else {
-        console.error("Error saving profile data:", error);
-      }
-      alert("خطا در ذخیره اطلاعات.");
-    }
-  };
+  const formatBirthdate = (dateStr) => dateStr.replace(/-/g, "/");
 
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
           setMapCenter({ lat: latitude, lng: longitude });
           setMapMarker({ lat: latitude, lng: longitude });
           fetchAddress(latitude, longitude);
         },
-        (error) => {
-          console.error("Error getting location:", error);
-          alert("دسترسی به موقعیت مکانی ممکن نیست.");
-        }
+        () => alert("دسترسی به موقعیت مکانی ممکن نیست.")
       );
     } else {
       alert("مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند.");
@@ -95,11 +125,11 @@ const EditProfile = () => {
 
   const fetchAddress = async (lat, lng) => {
     try {
-      const response = await fetch(
+      const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&language=fa`
       );
-      const data = await response.json();
-      if (data && data.address) {
+      const data = await res.json();
+      if (data?.address) {
         const road = data.address.road || "";
         const neighbourhood = data.address.neighbourhood || "";
         const suburb = data.address.suburb || "";
@@ -112,7 +142,7 @@ const EditProfile = () => {
         setAddress(fullAddress.trim());
       }
     } catch (error) {
-      console.error("Error fetching address:", error);
+      console.error(error);
     }
   };
 
@@ -122,24 +152,53 @@ const EditProfile = () => {
     fetchAddress(lat, lng);
   };
 
+  const handleSave = async () => {
+    setErrorMessage("");
+    if (!province || !diet || !birthdate) {
+      setErrorMessage("لطفاً همه فیلدهای قابل ویرایش را پر کنید");
+      return;
+    }
+
+    try {
+      const userObject = {
+        user: { first_name: name, last_name: familyName },
+        address: address + "@" + Department,
+        longitude: mapMarker.lng.toFixed(6).toString(),
+        latitude: mapMarker.lat.toFixed(6).toString(),
+        province,
+        birthdate: formatBirthdate(birthdate),
+        diet_groups:
+          diet === "vegetarian" ? ["diet:vegetarian"] : ["diet:normal"],
+        gender_groups: [gender === "M" ? "gender:M" : "gender:F"],
+      };
+
+      await axiosInstance.patch("/customer/profile", userObject, {
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+
+      alert("اطلاعات با موفقیت ذخیره شد.");
+      navigate("/customer/profile");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("خطا در ذخیره اطلاعات.");
+    }
+  };
+
   if (loading)
     return <Box sx={{ textAlign: "center", mt: 5 }}>در حال بارگذاری...</Box>;
 
   return (
     <Box
-      sx={{
-        width: "100%",
-        height: "auto",
-        paddingTop: "120px",
-        paddingX: 2,
-        bgcolor: "#ADBC9F",
-      }}
+      sx={{ width: "100%", height: "auto", pt: 12, px: 2, bgcolor: "#ADBC9F" }}
     >
       {/* Header */}
       <Box
         sx={{
           bgcolor: "#12372A",
-          padding: 2,
+          p: 2,
           position: "fixed",
           top: 0,
           width: "100%",
@@ -153,7 +212,6 @@ const EditProfile = () => {
         </Typography>
       </Box>
 
-      {/* Profile Form */}
       <Box
         sx={{
           display: "flex",
@@ -163,37 +221,118 @@ const EditProfile = () => {
           mx: "auto",
         }}
       >
+        {/* نام و نام خانوادگی */}
         <TextField
-          InputProps={{
-            sx: {
-              color: "white",
-              "& input::placeholder": { color: "white", opacity: 1 },
-            },
-          }}
           value={name}
           placeholder="نام"
           variant="outlined"
           fullWidth
-          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            px: 1,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { border: "none" },
+            },
+            input: { color: "white", px: 1 },
+          }}
           onChange={handleFieldChange(setName)}
         />
-
         <TextField
-          InputProps={{
-            sx: {
-              color: "white",
-              "& input::placeholder": { color: "white", opacity: 1 },
-            },
-          }}
           value={familyName}
           placeholder="نام خانوادگی"
           variant="outlined"
           fullWidth
-          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            px: 1,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { border: "none" },
+            },
+            input: { color: "white", px: 1 },
+          }}
           onChange={handleFieldChange(setFamilyName)}
         />
 
-        <Box sx={{ height: 400, borderRadius: 1, overflow: "hidden", mb: 1 }}>
+        <TextField
+          type="date"
+          label="تاریخ تولد"
+          value={birthdate}
+          onChange={handleFieldChange(setBirthdate)}
+          InputLabelProps={{ shrink: true, sx: { color: "white", px: 1 } }}
+          variant="outlined"
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            px: 1,
+            input: { color: "white", px: 1 },
+            "& .MuiOutlinedInput-root fieldset": { border: "none" },
+          }}
+        />
+
+        <TextField
+          select
+          label="استان"
+          value={province} 
+          onChange={handleFieldChange(setProvince)}
+          variant="outlined"
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            px: 1,
+            input: { color: "white", px: 1 },
+            "& .MuiOutlinedInput-root fieldset": { border: "none" },
+          }}
+        >
+          {iranProvinces.map((p) => (
+            <MenuItem key={p.en} value={p.en}>
+              {p.fa}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        {/* رژیم */}
+        <Typography sx={{ color: "white", mt: 1 }}>رژیم</Typography>
+        <RadioGroup row value={diet} onChange={handleFieldChange(setDiet)}>
+          <FormControlLabel
+            value="vegetarian"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "white" } }}
+              />
+            }
+            label="گیاه‌خوار"
+          />
+          <FormControlLabel
+            value="normal"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "white" } }}
+              />
+            }
+            label="بدون رژیم"
+          />
+        </RadioGroup>
+
+        {/* جنسیت غیرقابل تغییر */}
+        <RadioGroup row value={gender}>
+          <FormControlLabel
+            value="M"
+            control={<Radio disabled sx={{ color: "white" }} />}
+            label="مرد"
+          />
+          <FormControlLabel
+            value="F"
+            control={<Radio disabled sx={{ color: "white" }} />}
+            label="زن"
+          />
+        </RadioGroup>
+
+        <Divider sx={{ bgcolor: "white", my: 2 }} />
+
+        {/* نقشه */}
+        <Box sx={{ height: 400, borderRadius: 1, overflow: "hidden" }}>
           <GoogleMapReact
             bootstrapURLKeys={{
               key: "AIzaSyD5AZ9092BIIq6gW9SWqdRJ9MBRgTLHLPY",
@@ -229,6 +368,7 @@ const EditProfile = () => {
           <FaMapMarkerAlt
             style={{ color: "black", marginRight: 5, fontSize: 25 }}
           />
+          دریافت موقعیت فعلی
         </Button>
 
         <TextField
@@ -247,19 +387,21 @@ const EditProfile = () => {
         />
 
         <TextField
-          InputProps={{
-            sx: {
-              color: "white",
-              "& input::placeholder": { color: "white", opacity: 1 },
-            },
-          }}
           value={Department}
           placeholder="پلاک و واحد"
           variant="outlined"
           fullWidth
-          sx={{ bgcolor: "#12372A", borderRadius: 1 }}
+          sx={{
+            bgcolor: "#12372A",
+            borderRadius: 1,
+            input: { color: "white" },
+          }}
           onChange={handleFieldChange(setDepartment)}
         />
+
+        {errorMessage && (
+          <Typography sx={{ color: "red" }}>{errorMessage}</Typography>
+        )}
 
         <Button
           variant="contained"
@@ -272,7 +414,7 @@ const EditProfile = () => {
           }}
           onClick={handleSave}
         >
-          تایید
+          ذخیره تغییرات
         </Button>
       </Box>
     </Box>

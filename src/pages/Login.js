@@ -66,6 +66,7 @@ function Login() {
 
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
+      localStorage.setItem("phone", phoneNumber);
       if (data.restaurant_id) {
         localStorage.setItem("res_id", data.restaurant_id);
       }
@@ -87,7 +88,7 @@ function Login() {
             alert("وضعیت فروشگاه نامشخص است");
         }
       } else {
-        navigate("/"); 
+        window.location.replace("/");
       }
     } catch (err) {
       console.error("AXIOS ERROR:", err);
