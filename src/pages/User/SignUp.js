@@ -11,6 +11,9 @@ import {
   FormControl,
   InputLabel,
   Input,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import KeyIcon from "@mui/icons-material/Key";
@@ -20,6 +23,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PhoneEnabledIcon from "@mui/icons-material/PhoneEnabled";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
+import publicAxiosInstance from "../../utills/publicAxiosInstance";
+import MenuItem from "@mui/material/MenuItem";
 
 function SignUp() {
   const [name, setName] = useState("");
@@ -30,7 +35,48 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // فیلدهای جدید
+  const [province, setProvince] = useState("");
+  const [diet, setDiet] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+
   const navigate = useNavigate();
+
+  // لیست شهرهای استان تهران
+  const iranProvinces = [
+    { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
+    { fa: "آذربایجان غربی", en: "West Azerbaijan" },
+    { fa: "اردبیل", en: "Ardabil" },
+    { fa: "اصفهان", en: "Isfahan" },
+    { fa: "البرز", en: "Alborz" },
+    { fa: "ایلام", en: "Ilam" },
+    { fa: "بوشهر", en: "Bushehr" },
+    { fa: "تهران", en: "Tehran" },
+    { fa: "چهارمحال و بختیاری", en: "Chaharmahal and Bakhtiari" },
+    { fa: "خراسان جنوبی", en: "South Khorasan" },
+    { fa: "خراسان رضوی", en: "Razavi Khorasan" },
+    { fa: "خراسان شمالی", en: "North Khorasan" },
+    { fa: "خوزستان", en: "Khuzestan" },
+    { fa: "زنجان", en: "Zanjan" },
+    { fa: "سمنان", en: "Semnan" },
+    { fa: "سیستان و بلوچستان", en: "Sistan and Baluchestan" },
+    { fa: "فارس", en: "Fars" },
+    { fa: "قزوین", en: "Qazvin" },
+    { fa: "قم", en: "Qom" },
+    { fa: "کردستان", en: "Kurdistan" },
+    { fa: "کرمان", en: "Kerman" },
+    { fa: "کرمانشاه", en: "Kermanshah" },
+    { fa: "کهگیلویه و بویراحمد", en: "Kohgiluyeh and Boyer-Ahmad" },
+    { fa: "گلستان", en: "Golestan" },
+    { fa: "گیلان", en: "Gilan" },
+    { fa: "لرستان", en: "Lorestan" },
+    { fa: "مازندران", en: "Mazandaran" },
+    { fa: "مرکزی", en: "Markazi" },
+    { fa: "هرمزگان", en: "Hormozgan" },
+    { fa: "همدان", en: "Hamedan" },
+    { fa: "یزد", en: "Yazd" },
+  ];
 
   const handleLoginClick = () => {
     navigate("/login");
@@ -44,10 +90,25 @@ function SignUp() {
     event.preventDefault();
   };
 
+  const formatBirthdate = (dateStr) => {
+    // تبدیل YYYY-MM-DD به YYYY/MM/DD
+    return dateStr.replace(/-/g, "/");
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!name || !lastName || !phoneNumber || !password || !confirmPassword) {
+    if (
+      !name ||
+      !lastName ||
+      !phoneNumber ||
+      !password ||
+      !confirmPassword ||
+      !province ||
+      !diet ||
+      !gender ||
+      !birthdate
+    ) {
       setErrorMessage("لطفاً همه فیلدها را پر کنید");
       return;
     }
@@ -55,7 +116,7 @@ function SignUp() {
     if (
       !/^\d+$/.test(phoneNumber) ||
       !phoneNumber.startsWith("09") ||
-      phoneNumber.length != 11
+      phoneNumber.length !== 11
     ) {
       setErrorMessage("شماره موبایل وارد شده صحیح نیست");
       return;
@@ -82,16 +143,24 @@ function SignUp() {
       return;
     }
 
+    const diet_groups =
+      diet === "vegetarian" ? ["diet:vegetarian"] : ["diet:normal"];
+    const gender_groups = gender === "M" ? ["gender:M"] : ["gender:F"];
+
     const userData = {
       first_name: name,
       last_name: lastName,
       phone_number: formattedPhoneNumber,
       password,
+      province,
+      birthdate: formatBirthdate(birthdate),
+      diet_groups,
+      gender_groups,
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost/api/auth/signup/customer",
+      const response = await publicAxiosInstance.post(
+        "/auth/signup/customer",
         userData
       );
 
@@ -112,7 +181,10 @@ function SignUp() {
   };
 
   return (
-    <div className="signup-container">
+    <div
+      className="signup-container"
+      style={{ direction: "rtl", textAlign: "right" }}
+    >
       <img
         src={YumziImg}
         alt="Login Illustration"
@@ -120,6 +192,7 @@ function SignUp() {
       />
       <Divider />
 
+      {/* نام و نام خانوادگی */}
       <Box
         sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
         marginBottom={0.9}
@@ -131,9 +204,9 @@ function SignUp() {
           label="نام"
           variant="standard"
           margin="normal"
-          name="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         />
       </Box>
 
@@ -148,12 +221,13 @@ function SignUp() {
           label="نام خانوادگی"
           variant="standard"
           margin="normal"
-          name="lastName"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         />
       </Box>
 
+      {/* شماره موبایل */}
       <Box
         sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
         marginBottom={0.9}
@@ -165,12 +239,13 @@ function SignUp() {
           label="شماره موبایل"
           variant="standard"
           margin="normal"
-          name="phoneNumber"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         />
       </Box>
 
+      {/* رمز عبور */}
       <Box
         sx={{ display: "flex", alignItems: "flex-end", width: "51%" }}
         marginBottom={0.9}
@@ -203,7 +278,7 @@ function SignUp() {
 
       <Box sx={{ display: "flex", alignItems: "flex-end", width: "51%" }}>
         <KeyIcon sx={{ color: "action.active", mr: 1, mb: 2 }} />
-        <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+        <FormControl sx={{ m: 1, mb: 4 }} variant="standard" fullWidth>
           <InputLabel htmlFor="standard-adornment-password">
             تکرار رمزعبور
           </InputLabel>
@@ -228,6 +303,128 @@ function SignUp() {
             }
           />
         </FormControl>
+      </Box>
+
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
+        marginBottom={3}
+        paddingLeft={5}
+      >
+        <TextField
+          fullWidth
+          type="date"
+          label="تاریخ تولد"
+          value={birthdate}
+          onChange={(e) => setBirthdate(e.target.value)}
+          InputLabelProps={{ shrink: true, sx: { color: "gray" } }}
+          InputProps={{ sx: { color: "gray" } }}
+          variant="standard"
+          required
+        />
+      </Box>
+
+      {/* استان */}
+      <Box
+        sx={{ display: "flex", alignItems: "flex-end", width: "50%" }}
+        marginBottom={1}
+        paddingLeft={5}
+      >
+        <TextField
+          select
+          fullWidth
+          label="استان"
+          value={province}
+          onChange={(e) => setProvince(e.target.value)}
+          InputProps={{
+            sx: {
+              color: "white", 
+              textAlign: "left", 
+            },
+          }}
+          variant="standard"
+          required
+        >
+          {iranProvinces.map((p) => (
+            <MenuItem key={p.en} value={p.en}>
+              {p.fa}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Box>
+
+      {/* رژیم - Radio */}
+      <Box
+        sx={{ display: "flex", flexDirection: "column", width: "50%" }}
+        marginBottom={0}
+        paddingLeft={5}
+      >
+        <Typography>رژیم</Typography>
+        <RadioGroup row value={diet} onChange={(e) => setDiet(e.target.value)}>
+          <FormControlLabel
+            value="vegetarian"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "gray" } }}
+              />
+            }
+            label="گیاه‌خوار"
+            sx={{ "& .MuiFormControlLabel-label": { color: "gray" } }}
+          />
+          <FormControlLabel
+            value="normal"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "gray" } }}
+              />
+            }
+            label="بدون رژیم"
+            sx={{ "& .MuiFormControlLabel-label": { color: "gray" } }}
+          />
+        </RadioGroup>
+      </Box>
+
+      {/* جنسیت - Radio */}
+      <Box
+        sx={{ display: "flex", flexDirection: "column", width: "50%" }}
+        marginBottom={2}
+        paddingLeft={5}
+      >
+        <Typography>جنسیت</Typography>
+        <RadioGroup
+          row
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+        >
+          <FormControlLabel
+            value="M"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "gray" } }}
+              />
+            }
+            label="مرد"
+            sx={{
+              "& .MuiFormControlLabel-label": { color: "gray" },
+              display: "flex",
+              alignItems: "center",
+            }}
+          />
+          <FormControlLabel
+            value="F"
+            control={
+              <Radio
+                sx={{ color: "white", "&.Mui-checked": { color: "gray" } }}
+              />
+            }
+            label="زن"
+            sx={{
+              "& .MuiFormControlLabel-label": { color: "gray" },
+              display: "flex",
+              alignItems: "center",
+              marginLeft: "15px",
+            }}
+          />
+        </RadioGroup>
       </Box>
 
       {errorMessage && (

@@ -18,6 +18,7 @@ import PhoneEnabledIcon from "@mui/icons-material/PhoneEnabled";
 import LoginImg from "../assets/imgs/login.png";
 import YumziImg from "../assets/imgs/yumzi_icon.png";
 import axiosInstance from "../utills/axiosInstance";
+import { useUser } from "../contexts/UserContext";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +27,7 @@ function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { fetchUser } = useUser();
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
@@ -64,29 +66,28 @@ function Login() {
 
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
-      localStorage.setItem("phone", phoneNumber);
-
       if (data.restaurant_id) {
         localStorage.setItem("res_id", data.restaurant_id);
+      }
 
+      await fetchUser();
+
+      if (data.restaurant_id) {
         switch (data.state) {
           case "approved":
             navigate(`/restaurant/${data.restaurant_id}/profile`);
             break;
           case "pending":
-            localStorage.clear();
             alert("فروشگاه شما در انتظار تایید ادمین است");
             break;
           case "rejected":
-            localStorage.clear();
             alert("فروشگاه شما توسط ادمین رد شده است");
             break;
           default:
-            localStorage.clear();
             alert("وضعیت فروشگاه نامشخص است");
         }
       } else {
-        navigate("/"); // یوزر عادی
+        navigate("/"); 
       }
     } catch (err) {
       console.error("AXIOS ERROR:", err);
@@ -237,7 +238,7 @@ function Login() {
             onClick={() => navigate("/restuarant/signup")}
             sx={{
               cursor: "pointer",
-              color: "primary.main",
+              color: "#000 !important",
               textAlign: "center",
               mt: 1,
             }}

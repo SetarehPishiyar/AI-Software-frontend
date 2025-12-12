@@ -3,6 +3,7 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL: "http://localhost/api",
   headers: { "Content-Type": "application/json" },
+  withCredentials: false,
 });
 
 axiosInstance.interceptors.request.use(
@@ -25,7 +26,6 @@ axiosInstance.interceptors.response.use(
         const refresh = localStorage.getItem("refresh");
         if (!refresh) throw new Error("No refresh token");
 
-        // اینجا هم از طریق Nginx بفرست
         const res = await axios.post(
           "http://localhost/api/auth/token/refresh",
           { refresh }
