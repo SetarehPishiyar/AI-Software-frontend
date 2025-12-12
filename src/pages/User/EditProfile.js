@@ -62,7 +62,7 @@ const EditProfile = () => {
   const [birthdate, setBirthdate] = useState("");
   const [gender, setGender] = useState("M");
 
-  const [address, setAddress] = useState("آدرس");
+  const [address, setAddress] = useState();
   const [Department, setDepartment] = useState("");
   const [mapCenter, setMapCenter] = useState({ lat: 35.6892, lng: 51.389 });
   const [mapMarker, setMapMarker] = useState({ lat: 35.6892, lng: 51.389 });
@@ -81,11 +81,9 @@ const EditProfile = () => {
       setName(data.user?.first_name || "");
       setFamilyName(data.user?.last_name || "");
       setProvince(data.province || "");
-      setDiet(
-        data.diet_groups?.includes("diet:vegetarian") ? "vegetarian" : "normal"
-      );
-      setBirthdate(data.birthdate || "");
-      setGender(data.gender_groups?.includes("gender:M") ? "M" : "F");
+      setDiet(data.diet || "normal");
+      setBirthdate(data.birthdate ? data.birthdate.replace(/\//g, "-") : "");
+      setGender(data.gender || "M");
 
       const addrParts = data.address?.split("@") || [];
       setAddress(addrParts[0] || "آدرس");
@@ -274,7 +272,7 @@ const EditProfile = () => {
         <TextField
           select
           label="استان"
-          value={province} 
+          value={province}
           onChange={handleFieldChange(setProvince)}
           variant="outlined"
           sx={{

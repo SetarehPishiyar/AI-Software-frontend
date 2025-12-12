@@ -118,28 +118,38 @@ const EditProfile = () => {
 
   const handleSave = async () => {
     try {
-      const formattedOpeningTime =
-        openingTime instanceof Date ? format(openingTime, "HH:mm:ss") : null;
-      const formattedClosingTime =
-        closingTime instanceof Date ? format(closingTime, "HH:mm:ss") : null;
+      const formattedOpeningTime = openingTime
+        ? format(openingTime, "HH:mm:ss")
+        : null;
+      const formattedClosingTime = closingTime
+        ? format(closingTime, "HH:mm:ss")
+        : null;
 
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("address", address);
-      formData.append("delivery_price", deliveryCost);
-      formData.append("description", description);
-      formData.append("business_type", businessType);
-      formData.append("open_hour", formattedOpeningTime);
-      formData.append("close_hour", formattedClosingTime);
-      formData.append("latitude", mapMarker.lat.toFixed(6));
-      formData.append("longitude", mapMarker.lng.toFixed(6));
-      formData.append("city_name", province);
+      const payload = {
+        data: {
+          name,
+          business_type: businessType,
+          city_name: province,
+          delivery_price: deliveryCost.toString(),
+          address,
+          description,
+          open_hour: formattedOpeningTime,
+          close_hour: formattedClosingTime,
+          latitude: mapMarker.lat.toString(),
+          longitude: mapMarker.lng.toString(),
+        },
+      };
 
-      if (logo instanceof File) formData.append("photo", logo);
+      await axiosInstance.put(`/restaurant/profiles/me`, payload);
 
-      await axiosInstance.put(`/restaurant/profiles/me`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (logo instanceof File) {
+        const imgData = new FormData();
+        imgData.append("photo", logo);
+
+        await axiosInstance.put(`/restaurant/profiles/me`, imgData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
       alert("اطلاعات با موفقیت ذخیره شد.");
       navigate(`/restaurant/${id}/profile`);

@@ -140,10 +140,6 @@ function SignUp() {
       return;
     }
 
-    const diet_groups =
-      diet === "vegetarian" ? ["diet:vegetarian"] : ["diet:normal"];
-    const gender_groups = gender === "M" ? ["gender:M"] : ["gender:F"];
-
     const userData = {
       first_name: name,
       last_name: lastName,
@@ -151,8 +147,8 @@ function SignUp() {
       password,
       province,
       birthdate: formatBirthdate(birthdate),
-      diet_groups,
-      gender_groups,
+      diet: diet === "vegetarian" ? "vegetarian" : "normal",
+      gender: gender,
     };
 
     try {
@@ -334,8 +330,8 @@ function SignUp() {
           onChange={(e) => setProvince(e.target.value)}
           InputProps={{
             sx: {
-              color: "white", 
-              textAlign: "left", 
+              color: "white",
+              textAlign: "left",
             },
           }}
           variant="standard"

@@ -1,58 +1,88 @@
-// src/context/FoodCartContext.js
 import { createContext, useContext, useState } from "react";
 import privateAxiosInstance from "../utills/axiosInstance";
 
 const FoodCartContext = createContext();
 
 export const FoodCartProvider = ({ children }) => {
+  const [cart, setCart] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [restaurantIdState, setRestaurantIdState] = useState(null);
 
-  const fetchCart = async (restaurantId) => {
-    try {
-      const res = await privateAxiosInstance.get("/customer/carts", {
-        params: { restaurant_id: restaurantId },
-      });
-      const filtered = res.data.filter(
-        (cart) => cart.restaurant === parseInt(restaurantId)
-      );
-      if (filtered[0]) {
-        setCartItems(filtered[0].cart_items || []);
-        setTotalPrice(filtered[0].total_price);
-      }
-    } catch (error) {
-      console.error(error);
+const fetchCart = async (restaurantId) => {
+  try {
+    setRestaurantIdState(restaurantId);
+
+    const res = await privateAxiosInstance.get("/customer/carts", {
+      params: { restaurant_id: restaurantId },
+    });
+    const cartObj = res.data.length > 0 ? res.data[0] : null;
+
+    if (cartObj) {
+      setCart(cartObj);
+
+      setCartItems(cartObj.cart_items || []);
+      setTotalPrice(parseFloat(cartObj.total_price || 0));
+    } else {
+      setCart(null);
+      setCartItems([]);
+      setTotalPrice(0);
     }
-  };
+  } catch (error) {
+    console.error("CART FETCH ERROR:", error);
+    setCart(null);
+    setCartItems([]);
+    setTotalPrice(0);
+  }
+};
+
 
   const addToCart = async (restaurantId, itemId, count = 1) => {
     try {
-      await privateAxiosInstance.post("/customer/carts", {
-        restaurant_id: restaurantId,
+      const payload = {
+        restaurant_id: parseInt(restaurantId),
         item_id: parseInt(itemId),
         count,
-      });
-      fetchCart(restaurantId);
+      };
+
+      await privateAxiosInstance.post("/customer/carts", payload);
+
+      await fetchCart(restaurantId);
     } catch (error) {
-      console.error(error);
+      console.error("CART ADD ERROR:", error.response?.data || error);
     }
   };
 
-  const updateCartItem = async (cartID, cartItemID, count) => {
+  const updateCartItem = async (cartItemID, count) => {
     try {
-      await privateAxiosInstance.put(`/customer/carts/${cartID}`, {
+      if (!cart?.id) {
+        console.error("Cart ID not found. Call fetchCart first.");
+        return;
+      }
+
+      await privateAxiosInstance.put(`/customer/carts/${cart.id}`, {
         cart_item_id: cartItemID,
         count,
       });
-      fetchCart();
+
+      if (restaurantIdState) {
+        await fetchCart(restaurantIdState);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("UPDATE CART ITEM ERROR:", error.response?.data || error);
     }
   };
 
   return (
     <FoodCartContext.Provider
-      value={{ cartItems, totalPrice, fetchCart, addToCart, updateCartItem }}
+      value={{
+        cart,
+        cartItems,
+        totalPrice,
+        fetchCart,
+        addToCart,
+        updateCartItem,
+      }}
     >
       {children}
     </FoodCartContext.Provider>
