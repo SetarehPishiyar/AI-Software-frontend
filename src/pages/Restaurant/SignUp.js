@@ -34,6 +34,40 @@ function SignUp() {
 
   const navigate = useNavigate();
 
+  const iranProvinces = [
+    { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
+    { fa: "آذربایجان غربی", en: "West Azerbaijan" },
+    { fa: "اردبیل", en: "Ardabil" },
+    { fa: "اصفهان", en: "Isfahan" },
+    { fa: "البرز", en: "Alborz" },
+    { fa: "ایلام", en: "Ilam" },
+    { fa: "بوشهر", en: "Bushehr" },
+    { fa: "تهران", en: "Tehran" },
+    { fa: "چهارمحال و بختیاری", en: "Chaharmahal and Bakhtiari" },
+    { fa: "خراسان جنوبی", en: "South Khorasan" },
+    { fa: "خراسان شمالی", en: "North Khorasan" },
+    { fa: "خراسان رضوی", en: "Razavi Khorasan" },
+    { fa: "خوزستان", en: "Khuzestan" },
+    { fa: "زنجان", en: "Zanjan" },
+    { fa: "سمنان", en: "Semnan" },
+    { fa: "سیستان و بلوچستان", en: "Sistan and Baluchestan" },
+    { fa: "فارس", en: "Fars" },
+    { fa: "قزوین", en: "Qazvin" },
+    { fa: "قم", en: "Qom" },
+    { fa: "کردستان", en: "Kurdistan" },
+    { fa: "کرمان", en: "Kerman" },
+    { fa: "کرمانشاه", en: "Kermanshah" },
+    { fa: "کهگیلویه و بویراحمد", en: "Kohgiluyeh and Boyer-Ahmad" },
+    { fa: "گلستان", en: "Golestan" },
+    { fa: "گیلان", en: "Gilan" },
+    { fa: "لرستان", en: "Lorestan" },
+    { fa: "مازندران", en: "Mazandaran" },
+    { fa: "مرکزی", en: "Markazi" },
+    { fa: "هرمزگان", en: "Hormozgan" },
+    { fa: "همدان", en: "Hamedan" },
+    { fa: "یزد", en: "Yazd" },
+  ];
+
   const handleLoginClick = () => {
     navigate("/login");
   };
@@ -131,67 +165,35 @@ function SignUp() {
 
       <Divider />
 
-      <FormControl
-        fullWidth
-        variant="standard"
-        sx={{ marginTop: "30px", width: "50%" }}
-      >
-        <InputLabel>نوع کسب و کار</InputLabel>
+      {/* نوع رستوران */}
+      <FormControl variant="standard" sx={{ width: "50%" }}>
+        <InputLabel>نوع رستوران</InputLabel>
         <Select
           value={businessType}
-          name="businessType"
           onChange={(e) => setBusinessType(e.target.value)}
+          sx={{ color: "#fff", textAlign: "left", mb: 3 }}
         >
-          <MenuItem value={"cafe"}>کافه</MenuItem>
-          <MenuItem value={"restaurant"}>رستوران</MenuItem>
-          <MenuItem value={"bakery"}>نانوایی</MenuItem>
-          <MenuItem value={"sweets"}>شیرینی</MenuItem>
-          <MenuItem value={"ice_cream"}>آبمیوه و بستنی</MenuItem>
+          <MenuItem value="Iranian">ایرانی</MenuItem>
+          <MenuItem value="FastFood">فست فود</MenuItem>
+          <MenuItem value="Italian">ایتالیایی</MenuItem>
+          <MenuItem value="Asian">آسیایی</MenuItem>
+          <MenuItem value="Mexican">مکزیکی</MenuItem>
         </Select>
       </FormControl>
 
-      <FormControl
-        fullWidth
-        variant="standard"
-        sx={{ marginTop: "30px", width: "50%" }}
-      >
-        <InputLabel> نام استان</InputLabel>
+      {/* استان */}
+      <FormControl variant="standard" sx={{ width: "50%" }}>
+        <InputLabel>استان</InputLabel>
         <Select
           value={provinceName}
-          name="provinceName"
           onChange={(e) => setProvinceName(e.target.value)}
+          sx={{ color: "#fff", textAlign: "left" }}
         >
-          <MenuItem value={"آذربایجان شرقی"}>آذربایجان شرقی</MenuItem>
-          <MenuItem value={"آذربایجان غربی"}>آذربایجان غربی</MenuItem>
-          <MenuItem value={"اردبیل"}>اردبیل</MenuItem>
-          <MenuItem value={"اصفهان"}>اصفهان</MenuItem>
-          <MenuItem value={"البرز"}>البرز</MenuItem>
-          <MenuItem value={"ایلام"}>ایلام</MenuItem>
-          <MenuItem value={"بوشهر"}>بوشهر</MenuItem>
-          <MenuItem value={"تهران"}>تهران</MenuItem>
-          <MenuItem value={"چهارمحال و بختیاری"}>چهارمحال و بختیاری</MenuItem>
-          <MenuItem value={"خراسان جنوبی"}>خراسان جنوبی</MenuItem>
-          <MenuItem value={"خراسان شمالی"}>خراسان شمالی</MenuItem>
-          <MenuItem value={"خراسان رضوی"}>خراسان رضوی</MenuItem>
-          <MenuItem value={"خوزستان"}>خوزستان</MenuItem>
-          <MenuItem value={"زنجان"}>زنجان</MenuItem>
-          <MenuItem value={"سمنان"}>سمنان</MenuItem>
-          <MenuItem value={"سیستان و بلوچستان"}>سیستان و بلوچستان</MenuItem>
-          <MenuItem value={"شیراز"}>شیراز</MenuItem>
-          <MenuItem value={"قزوین"}>قزوین</MenuItem>
-          <MenuItem value={"قم"}>قم</MenuItem>
-          <MenuItem value={"کردستان"}>کردستان</MenuItem>
-          <MenuItem value={"کرمان"}>کرمان</MenuItem>
-          <MenuItem value={"کرمانشاه"}>کرمانشاه</MenuItem>
-          <MenuItem value={"کهگیلویه و بویراحمد"}>کهگیلویه و بویراحمد</MenuItem>
-          <MenuItem value={"گلستان"}>گلستان</MenuItem>
-          <MenuItem value={"گیلان"}>گیلان</MenuItem>
-          <MenuItem value={"لرستان"}>لرستان</MenuItem>
-          <MenuItem value={"مازندران"}>مازندران</MenuItem>
-          <MenuItem value={"مرکزی"}>مرکزی</MenuItem>
-          <MenuItem value={"هرمزگان"}>هرمزگان</MenuItem>
-          <MenuItem value={"همدان"}>همدان</MenuItem>
-          <MenuItem value={"یزد"}>یزد</MenuItem>
+          {iranProvinces.map((p) => (
+            <MenuItem key={p.en} value={p.en}>
+              {p.fa}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
@@ -209,6 +211,7 @@ function SignUp() {
           name="storeName"
           value={storeName}
           onChange={(e) => setStoreName(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         />
       </Box>
 
@@ -226,6 +229,7 @@ function SignUp() {
           name="phoneNumber"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         />
       </Box>
 
@@ -239,6 +243,7 @@ function SignUp() {
           name="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{ style: { color: "white" } }}
         >
           <InputLabel htmlFor="standard-adornment-password">رمزعبور</InputLabel>
           <Input
@@ -253,6 +258,7 @@ function SignUp() {
                   }
                   onClick={handleClickShowPassword}
                   onMouseDown={handleMouseDownPassword}
+                  InputProps={{ style: { color: "white" } }}
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
@@ -303,7 +309,7 @@ function SignUp() {
       <Button
         variant="contained"
         color="primary"
-        style={{ marginTop: "20px",width:"150px", mb:3 }}
+        style={{ marginTop: "20px", width: "150px", mb: 3 }}
         onClick={handleSubmit}
       >
         ثبت‌نام
@@ -323,7 +329,7 @@ function SignUp() {
           display={"inline"}
           style={{ marginTop: "15px", marginRight: "10px", cursor: "pointer" }}
           onClick={handleLoginClick}
-          sx={{ pointerEvents: "auto", color:"#fff !important" }}
+          sx={{ pointerEvents: "auto", color: "#fff !important" }}
         >
           وارد شوید
         </Typography>

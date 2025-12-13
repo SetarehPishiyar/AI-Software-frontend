@@ -48,6 +48,17 @@ const CartsList = () => {
       const response = await axiosInstance.get("/customer/carts");
       const carts = response.data;
 
+      for (const cart of carts) {
+        if (!cart.cart_items || cart.cart_items.length === 0) {
+          try {
+            await axiosInstance.delete(`/customer/carts/${cart.id}`);
+            console.log(`سبد خرید با id ${cart.id} حذف شد چون خالی بود.`);
+          } catch (err) {
+            console.error(`خطا در حذف سبد خالی ${cart.id}:`, err);
+          }
+        }
+      }
+
       const updatedCarts = await Promise.all(
         carts.map(async (cart) => {
           try {
@@ -69,7 +80,8 @@ const CartsList = () => {
           }
         })
       );
-      setCartItems(updatedCarts);
+
+      setCartItems(updatedCarts.filter((cart) => cart.cart_items?.length > 0));
     } catch (error) {
       console.error("خطا در دریافت اطلاعات سبد خرید:", error);
     }
@@ -94,7 +106,7 @@ const CartsList = () => {
       </Box>
 
       {/* Cart Items */}
-      <Container sx={{ mt: 2, width:"80%" }}>
+      <Container sx={{ mt: 2, width: "80%" }}>
         <Grid container spacing={2} justifyContent="center">
           {cartItems.length === 0 ? (
             <Typography

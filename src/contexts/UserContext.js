@@ -1,8 +1,7 @@
-// usercontext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utills/axiosInstance"; 
+import { getUserInfo, logout as logoutService } from "../services/userService";
 
 const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
@@ -13,8 +12,7 @@ const UserProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const fetchUser = async () => {
-    const accessToken = localStorage.getItem("access");
-
+    const accessToken = localStorage.getItem("access"); 
     if (!accessToken) {
       setUser(null);
       setLoading(false);
@@ -23,30 +21,12 @@ const UserProvider = ({ children }) => {
 
     try {
       const resID = localStorage.getItem("res_id");
-      if (!resID || resID === "undefined") {
-        const response = await axiosInstance.get("/customer/profile", {
-          withCredentials: true, 
-        });
-        localStorage.setItem("user", JSON.stringify(response.data));
-        setUser(response.data);
-      } else {
-        const response = await axiosInstance.get(
-          `/restaurant/${resID}/profile`,
-          {
-            withCredentials: true,
-          }
-        );
-        localStorage.setItem("user", JSON.stringify(response.data));
-        setUser(response.data);
-      }
+      const data = await getUserInfo(resID);
+      setUser(data);
     } catch (error) {
       console.error("خطا در دریافت پروفایل:", error);
-      if (error.response?.status === 401) {
-        console.warn("توکن منقضی شده یا کاربر وارد نشده است.");
-        localStorage.clear();
-        setUser(null);
-        navigate("/login");
-      }
+      setUser(null);
+      navigate("/login");
     } finally {
       setLoading(false);
     }
@@ -57,7 +37,7 @@ const UserProvider = ({ children }) => {
   }, []);
 
   const logout = () => {
-    localStorage.clear();
+    logoutService();
     setUser(null);
     navigate("/login");
   };

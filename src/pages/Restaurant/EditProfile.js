@@ -25,6 +25,7 @@ const EditProfile = () => {
   const [deliveryCost, setDeliveryCost] = useState("");
   const [description, setDescription] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [province, setProvince] = useState("");
   const [openingTime, setOpeningTime] = useState(null);
   const [closingTime, setClosingTime] = useState(null);
   const [logo, setLogo] = useState(null);
@@ -32,6 +33,41 @@ const EditProfile = () => {
   const [mapMarker, setMapMarker] = useState({ lat: 35.6892, lng: 51.389 });
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+    const iranProvinces = [
+      { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
+      { fa: "آذربایجان غربی", en: "West Azerbaijan" },
+      { fa: "اردبیل", en: "Ardabil" },
+      { fa: "اصفهان", en: "Isfahan" },
+      { fa: "البرز", en: "Alborz" },
+      { fa: "ایلام", en: "Ilam" },
+      { fa: "بوشهر", en: "Bushehr" },
+      { fa: "تهران", en: "Tehran" },
+      { fa: "چهارمحال و بختیاری", en: "Chaharmahal and Bakhtiari" },
+      { fa: "خراسان جنوبی", en: "South Khorasan" },
+      { fa: "خراسان شمالی", en: "North Khorasan" },
+      { fa: "خراسان رضوی", en: "Razavi Khorasan" },
+      { fa: "خوزستان", en: "Khuzestan" },
+      { fa: "زنجان", en: "Zanjan" },
+      { fa: "سمنان", en: "Semnan" },
+      { fa: "سیستان و بلوچستان", en: "Sistan and Baluchestan" },
+      { fa: "فارس", en: "Fars" },
+      { fa: "قزوین", en: "Qazvin" },
+      { fa: "قم", en: "Qom" },
+      { fa: "کردستان", en: "Kurdistan" },
+      { fa: "کرمان", en: "Kerman" },
+      { fa: "کرمانشاه", en: "Kermanshah" },
+      { fa: "کهگیلویه و بویراحمد", en: "Kohgiluyeh and Boyer-Ahmad" },
+      { fa: "گلستان", en: "Golestan" },
+      { fa: "گیلان", en: "Gilan" },
+      { fa: "لرستان", en: "Lorestan" },
+      { fa: "مازندران", en: "Mazandaran" },
+      { fa: "مرکزی", en: "Markazi" },
+      { fa: "هرمزگان", en: "Hormozgan" },
+      { fa: "همدان", en: "Hamedan" },
+      { fa: "یزد", en: "Yazd" },
+    ];
 
   useEffect(() => {
     fetchProfileData();
@@ -43,11 +79,13 @@ const EditProfile = () => {
       const data = response.data;
 
       if (data) {
+        console.log(data)
         setName(data.name || "");
         setAddress(data.address || "");
         setDeliveryCost(data.delivery_price || "");
         setDescription(data.description || "");
         setBusinessType(data.business_type || "");
+        setProvince(data.city_name || "");
         const opening = parse(data.open_hour, "HH:mm:ss", new Date());
         const closing = parse(data.close_hour, "HH:mm:ss", new Date());
         setOpeningTime(opening);
@@ -68,34 +106,50 @@ const EditProfile = () => {
       }
     } catch (error) {
       console.error("Error fetching profile data:", error);
+    } finally {
+      setLoading(false);
     }
   };
+  if (loading) {
+    return <Typography>در حال بارگذاری...</Typography>;
+  }
 
   const handleFieldChange = (setter) => (e) => setter(e.target.value);
 
   const handleSave = async () => {
     try {
-      const formattedOpeningTime =
-        openingTime instanceof Date ? format(openingTime, "HH:mm:ss") : null;
-      const formattedClosingTime =
-        closingTime instanceof Date ? format(closingTime, "HH:mm:ss") : null;
+      const formattedOpeningTime = openingTime
+        ? format(openingTime, "HH:mm:ss")
+        : null;
+      const formattedClosingTime = closingTime
+        ? format(closingTime, "HH:mm:ss")
+        : null;
 
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("address", address);
-      formData.append("delivery_price", deliveryCost);
-      formData.append("description", description);
-      formData.append("business_type", businessType);
-      formData.append("open_hour", formattedOpeningTime);
-      formData.append("close_hour", formattedClosingTime);
-      formData.append("latitude", mapMarker.lat.toFixed(6));
-      formData.append("longitude", mapMarker.lng.toFixed(6));
+      const payload = {
+        data: {
+          name,
+          business_type: businessType,
+          city_name: province,
+          delivery_price: deliveryCost.toString(),
+          address,
+          description,
+          open_hour: formattedOpeningTime,
+          close_hour: formattedClosingTime,
+          latitude: mapMarker.lat.toString(),
+          longitude: mapMarker.lng.toString(),
+        },
+      };
 
-      if (logo instanceof File) formData.append("photo", logo);
+      await axiosInstance.put(`/restaurant/profiles/me`, payload);
 
-      await axiosInstance.put(`/restaurant/profiles/me`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (logo instanceof File) {
+        const imgData = new FormData();
+        imgData.append("photo", logo);
+
+        await axiosInstance.put(`/restaurant/profiles/me`, imgData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
       alert("اطلاعات با موفقیت ذخیره شد.");
       navigate(`/restaurant/${id}/profile`);
@@ -223,13 +277,13 @@ const EditProfile = () => {
             value={businessType}
             onChange={handleFieldChange(setBusinessType)}
             style={{ color: "white" }}
-            label="نوع کسب و کار"
+            label="نوع رستوران "
           >
-            <MenuItem value="restaurant">رستوران</MenuItem>
-            <MenuItem value="cafe">کافه</MenuItem>
-            <MenuItem value="bakery">نانوایی</MenuItem>
-            <MenuItem value="sweets">شیرینی</MenuItem>
-            <MenuItem value="ice_cream">آبمیوه و بستنی</MenuItem>
+            <MenuItem value="Iranian">ایرانی</MenuItem>
+            <MenuItem value="FastFood">فست فود</MenuItem>
+            <MenuItem value="Italian">ایتالیایی</MenuItem>
+            <MenuItem value="Asian">آسیایی</MenuItem>
+            <MenuItem value="Mexican">مکزیکی</MenuItem>
           </Select>
         </FormControl>
 
@@ -243,6 +297,29 @@ const EditProfile = () => {
           style={{ backgroundColor: "#12372A", borderRadius: "8px" }}
           InputProps={{ sx: { color: "white" } }}
         />
+
+        <FormControl
+          fullWidth
+          style={{
+            backgroundColor: "#12372A",
+            borderRadius: "8px",
+            marginBottom: "10px",
+          }}
+        >
+          <InputLabel sx={{ color: "white" }}>استان</InputLabel>
+          <Select
+            value={province}
+            onChange={(e) => setProvince(e.target.value)}
+            style={{ color: "white" }}
+            label="استان"
+          >
+            {iranProvinces.map((p) => (
+              <MenuItem key={p.en} value={p.en}>
+                {p.fa}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* Logo Upload */}
         <Box>

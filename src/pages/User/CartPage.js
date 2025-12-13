@@ -31,30 +31,47 @@ const CartPage = () => {
     0
   );
 
-  useEffect(() => {
-    if (restaurantId) {
-      fetchCartData();
-    }
-  }, [restaurantId]);
+useEffect(() => {
+  if (restaurantId) {
+    fetchCartData();
+  }
+}, [restaurantId]);
 
-  const fetchCartData = async () => {
-    try {
-      const response = await axiosInstance.get("/customer/carts", {
-        params: { restaurant_id: restaurantId },
+const fetchCartData = async () => {
+  try {
+    const response = await axiosInstance.get("/customer/carts", {
+      params: { restaurant_id: restaurantId },
+    });
+
+    const filteredData = response?.data.filter(
+      (cart) => cart.restaurant === parseInt(restaurantId)
+    );
+
+    if (filteredData?.length !== 0) {
+      setCartID(parseInt(filteredData[0].id));
+      setTotalPrice(parseInt(filteredData[0].total_price));
+      setCartItems(response.data?.[0]?.cart_items);
+
+      response.data[0]?.cart_items.forEach(async (item) => {
+        if (item.state !== "available") {
+          try {
+            await axiosInstance.put(`/customer/carts/${filteredData[0].id}`, {
+              cart_item_id: item.id,
+              count: 0,
+            });
+          } catch (err) {
+            console.error(
+              "خطا در حذف آیتم ناموجود از سبد:",
+              err.response?.data || err
+            );
+          }
+        }
       });
-
-      const filteredData = response?.data.filter(
-        (cart) => cart.restaurant === parseInt(restaurantId)
-      );
-      if (filteredData?.length !== 0) {
-        setCartID(parseInt(filteredData[0].id));
-        setTotalPrice(parseInt(filteredData[0].total_price));
-        setCartItems(response.data?.[0]?.cart_items);
-      }
-    } catch (error) {
-      console.error("خطا در دریافت اطلاعات سبد خرید:", error);
     }
-  };
+  } catch (error) {
+    console.error("خطا در دریافت اطلاعات سبد خرید:", error);
+  }
+};
 
   const handleQuantityChange = async (cartItemId, delta) => {
     try {

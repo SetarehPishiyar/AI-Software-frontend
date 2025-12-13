@@ -15,13 +15,13 @@ const RestaurantCard = ({
   isFavorite,
   toggleFavorite,
   onClick,
-  showDetails = true, 
+  showDetails = true,
 }) => {
   const [imgSrc, setImgSrc] = useState(
     restaurant.photo
       ? restaurant.photo.startsWith("http")
         ? restaurant.photo
-        : `http://127.0.0.1:8000${restaurant.photo}`
+        : `http://localhost${restaurant.photo}`
       : PLACEHOLDER_IMG
   );
 
@@ -91,16 +91,14 @@ const RestaurantCard = ({
           </IconButton>
         ) : (
           <>
-            <IconButton
-              sx={{ color: "red" }}
-            >
+            <IconButton sx={{ color: "red" }}>
               <Favorite />
             </IconButton>
             <IconButton
               sx={{ color: "#12372A" }}
               onClick={(e) => {
                 e.stopPropagation();
-                toggleFavorite(restaurant.id); 
+                toggleFavorite(restaurant.id);
               }}
             >
               <Delete />

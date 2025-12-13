@@ -1,4 +1,3 @@
-// src/pages/User/FoodItemPage.js
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -13,9 +12,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import yumzi_icon from "../../assets/imgs/yumzi_icon.png";
-import { useAuthContext as useAuth } from "../../contexts/AuthContext"; // ← اصلاح شد
-import { useFoodCart } from "../../contexts/FoodCartContext"; // ← مسیر کانتکست
-import { useFetchSingleItem } from "../../hooks/useFetchSingleItem"; // ← هوک fetch single item
+import { useAuthContext as useAuth } from "../../contexts/AuthContext";
+import { useFoodCart } from "../../contexts/FoodCartContext";
+import { useFetchSingleItem } from "../../hooks/useFetchSingleItem";
 import CommentsList from "../../components/ItemComments";
 
 const FoodItemPage = () => {
@@ -26,17 +25,45 @@ const FoodItemPage = () => {
 
   const { itemData: foodItem, loading } = useFetchSingleItem(id, item_id);
   const [comments, setComments] = useState([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
+
+  const isAvailable = foodItem?.state?.toLowerCase() === "available";
 
   useEffect(() => {
+    const loadCart = async () => {
+      if (isLoggedIn) {
+        await fetchCart(id);
+      }
+      setCartLoaded(true);
+    };
+    loadCart();
     fetchItemComments();
-    if (isLoggedIn) fetchCart(id);
   }, [id, item_id, isLoggedIn]);
+
+  useEffect(() => {
+    if (!foodItem || !cartLoaded) return;
+
+    if (!isAvailable) {
+      const currentCartItem = cartItems.find((i) => i.item == item_id);
+      if (currentCartItem && currentCartItem.count > 0) {
+        updateCartItem(currentCartItem.id, 0);
+      }
+    }
+  }, [cartItems, foodItem, cartLoaded, isAvailable, item_id, updateCartItem]);
 
   const fetchItemComments = async () => {
     try {
-      const res = await fetch(`/customer/items/${item_id}/reviews/`).then((r) =>
-        r.json()
-      );
+      const response = await fetch(`/customer/items/${item_id}/reviews/`);
+      if (!response.ok) {
+        setComments([]);
+        return;
+      }
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        setComments([]);
+        return;
+      }
+      const res = await response.json();
       const reviews = res.map((review) => ({
         id: review.id,
         name: `${review.first_name} ${review.last_name}`,
@@ -47,13 +74,14 @@ const FoodItemPage = () => {
       setComments(reviews);
     } catch (err) {
       console.error("Error fetching comments:", err);
+      setComments([]);
     }
   };
 
   if (loading) return <Typography>در حال بارگذاری...</Typography>;
   if (!foodItem) return <Typography>آیتم پیدا نشد.</Typography>;
 
-  const cartItem = cartItems.find((i) => i.item === parseInt(item_id));
+  const currentCartItem = cartItems.find((i) => i.item == item_id) || null;
 
   const handleAdd = () => {
     if (!isLoggedIn) {
@@ -64,15 +92,24 @@ const FoodItemPage = () => {
   };
 
   const handleQuantityChange = (delta) => {
-    if (!cartItem && delta > 0) {
+    if (!currentCartItem && delta > 0) {
       handleAdd();
       return;
     }
-    if (cartItem) {
-      const newCount = cartItem.count + delta;
+    if (currentCartItem) {
+      const newCount = currentCartItem.count + delta;
       if (newCount < 1) return;
-      updateCartItem(cartItem.id, newCount);
+      updateCartItem(currentCartItem.id, newCount);
     }
+  };
+
+  const getSpiceLabel = (spice) => {
+    if (!spice) return "";
+    const s = spice.toLowerCase();
+    if (s === "no") return "کم";
+    if (s === "mild") return "متوسط";
+    if (s === "hot") return "زیاد";
+    return spice;
   };
 
   return (
@@ -111,7 +148,15 @@ const FoodItemPage = () => {
       </AppBar>
 
       {/* Item Info */}
-      <Grid sx={{ display: "flex", flexDirection: "column", gap: 0.5, width: "30%", pb:"40px" }}>
+      <Grid
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 0.5,
+          width: "30%",
+          pb: "40px",
+        }}
+      >
         <Box
           sx={{ position: "relative", width: "fit-content", margin: "auto" }}
         >
@@ -147,9 +192,29 @@ const FoodItemPage = () => {
             {foodItem.name}
           </Typography>
         </Box>
-        <Typography variant="body2" sx={{ my: 1, width: { lg: "500px" } }}>
+
+        <Typography variant="body2" sx={{ my: 1 }}>
           {foodItem.description}
         </Typography>
+
+        {foodItem.state && (
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 0.5,
+              color: isAvailable ? "green" : "red",
+              fontWeight: "bold",
+            }}
+          >
+            {isAvailable ? "موجود" : "ناموجود"}
+          </Typography>
+        )}
+
+        {foodItem.spice && (
+          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: "bold" }}>
+            تندی: {getSpiceLabel(foodItem.spice)}
+          </Typography>
+        )}
 
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center" gap={1}>
@@ -171,29 +236,38 @@ const FoodItemPage = () => {
             )}
           </Box>
 
-          {!cartItem || cartItem.count === 0 ? (
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              onClick={handleAdd}
-            >
-              افزودن
-            </Button>
-          ) : (
-            <Box display="flex" alignItems="center" gap={1}>
-              <IconButton
-                onClick={() => handleQuantityChange(-1)}
-                disabled={cartItem.count === 0}
-              >
-                <RemoveIcon />
-              </IconButton>
-              <Typography>{cartItem.count}</Typography>
-              <IconButton onClick={() => handleQuantityChange(1)}>
-                <AddIcon />
-              </IconButton>
-            </Box>
-          )}
+          {cartLoaded ? (
+            isAvailable ? (
+              currentCartItem && currentCartItem.count > 0 ? (
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IconButton onClick={() => handleQuantityChange(-1)}>
+                    <RemoveIcon />
+                  </IconButton>
+                  <Typography>{currentCartItem.count}</Typography>
+                  <IconButton onClick={() => handleQuantityChange(1)}>
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={handleAdd}
+                  sx={{
+                    backgroundColor: "#FBFADA !important",
+                    color: "#000",
+                    ml: 2,
+                    "&:hover": { backgroundColor: "#E3EBC6 !important" },
+                  }}
+                >
+                  افزودن به سبد خرید
+                </Button>
+              )
+            ) : (
+              <Typography sx={{ color: "red", fontWeight: "bold" }}>
+                ناموجود
+              </Typography>
+            )
+          ) : null}
         </Box>
 
         <Button
@@ -201,6 +275,7 @@ const FoodItemPage = () => {
           fullWidth
           onClick={() => navigate(`/customer/carts?restaurant_id=${id}`)}
           sx={{
+            mt: 2,
             backgroundColor: "#FBFADA !important",
             color: "#000",
             "&:hover": { backgroundColor: "#E3EBC6 !important" },
@@ -224,11 +299,10 @@ const FoodItemPage = () => {
           <Typography
             variant="h5"
             gutterBottom
-            sx={{ mb: 3, fontWeight: "bold", pointerEvents: "none" }}
+            sx={{ mb: 3, fontWeight: "bold" }}
           >
             نظر کاربران
           </Typography>
-
           <Box sx={{ maxHeight: "500px", overflowY: "auto" }}>
             <CommentsList itemId={item_id} />
           </Box>

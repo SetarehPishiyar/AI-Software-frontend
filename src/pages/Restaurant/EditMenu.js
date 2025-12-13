@@ -10,6 +10,7 @@ import {
   CardMedia,
   CardContent,
 } from "@mui/material";
+import { RadioGroup, FormControlLabel, Radio } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,6 +25,17 @@ const EditMenu = () => {
   const [editingFood, setEditingFood] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const navigate = useNavigate();
+  const spiceOptions = [
+    { fa: "کم", en: "No" },
+    { fa: "متوسط", en: "Mild" },
+    { fa: "زیاد", en: "Hot" },
+  ];
+  const stateOptions = [
+    { fa: "موجود", en: "available" },
+    { fa: "ناموجود", en: "unavailable" },
+  ];
+  const [state, setState] = useState("available");
+  const [spice, setSpice] = useState("No");
 
   useEffect(() => {
     const fetchFoodData = async () => {
@@ -70,7 +82,6 @@ const EditMenu = () => {
 
   const handleEditClick = async (foodId) => {
     try {
-      // console.log("B",foodData);
       const response = await axiosInstance.get(`/restaurant/items/${foodId}`);
       setEditingFood({
         item_id: response.data.item_id,
@@ -80,9 +91,10 @@ const EditMenu = () => {
         photo: response.data.photo,
         discount: response.data.discount,
         score: response.data.score,
-        state: response.data.state,
       });
       setIsAddingNew(false);
+      setState(response.data.state || "available");
+      setSpice(response.data.spice || "No");
     } catch (error) {
       console.error(
         "خطا در دریافت جزئیات آیتم:",
@@ -101,9 +113,10 @@ const EditMenu = () => {
       photo: "",
       discount: "",
       score: 0,
-      state: "",
     });
     setIsAddingNew(true);
+    setState("available");
+    setSpice("No");
   };
 
   const handleFileUpload = (e) => {
@@ -129,6 +142,7 @@ const EditMenu = () => {
     formData.append("discount", editingFood.discount.toString() || "0");
     formData.append("state", "available");
     formData.append("score", 0);
+    formData.append("spice", spice);
 
     if (editingFood.imageFile) {
       formData.append("photo", editingFood.imageFile);
@@ -193,7 +207,7 @@ const EditMenu = () => {
           md: 4,
         },
         display: "flex",
-        height: "100vh",
+        minHeight: "110vh",
         alignItems: "start",
         justifyContent: "center",
         backgroundColor: "#ADBC9F",
@@ -266,6 +280,52 @@ const EditMenu = () => {
               onChange={(e) => handleEditChange("discount", e.target.value)}
               sx={{ mb: 2 }}
             />
+            {/* مقدار تندی */}
+            <Typography sx={{ color: "black", mt: 1 }}>تندی غذا</Typography>
+            <RadioGroup
+              row
+              value={spice}
+              onChange={(e) => setSpice(e.target.value)}
+            >
+              {spiceOptions.map((s) => (
+                <FormControlLabel
+                  key={s.en}
+                  value={s.en}
+                  control={
+                    <Radio
+                      sx={{
+                        color: "black",
+                        "&.Mui-checked": { color: "black" },
+                      }}
+                    />
+                  }
+                  label={s.fa}
+                />
+              ))}
+            </RadioGroup>
+
+            <Typography sx={{ color: "black", mt: 1 }}>وضعیت غذا</Typography>
+            <RadioGroup
+              row
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+            >
+              {stateOptions.map((s) => (
+                <FormControlLabel
+                  key={s.en}
+                  value={s.en}
+                  control={
+                    <Radio
+                      sx={{
+                        color: "black",
+                        "&.Mui-checked": { color: "black" },
+                      }}
+                    />
+                  }
+                  label={s.fa}
+                />
+              ))}
+            </RadioGroup>
 
             <Button
               fullWidth
@@ -340,9 +400,20 @@ const EditMenu = () => {
                     </Typography>
                     <Typography
                       variant="body1"
-                      sx={{ paddingTop: 2, pointerEvents: "none" }}
+                      sx={{ paddingTop: 1, pointerEvents: "none" }}
                     >
                       {parseInt(food.price)} تومان
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: food.state === "available" ? "green" : "red",
+                        fontWeight: 500,
+                        marginTop: 0.5,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {food.state === "available" ? "موجود" : "ناموجود"}
                     </Typography>
                   </CardContent>
                   <Box>
