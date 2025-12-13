@@ -8,7 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import { PLACEHOLDER_IMG } from "../utills/constants";
-
+const isLoggedIn = !!localStorage.getItem("access");
 const FoodCard = ({ food, onAddToCart, added }) => {
   return (
     <Card
@@ -119,16 +119,19 @@ const FoodCard = ({ food, onAddToCart, added }) => {
         variant="contained"
         onClick={(e) => {
           e.stopPropagation();
-          if (food.state === "available") {
+
+          const isLoggedIn = !!localStorage.getItem("access");
+
+          if (!isLoggedIn) {
+            alert("برای افزودن به سبد، ابتدا وارد حساب کاربری شوید");
+            return;
+          }
+
+          if (food.state === "available" && onAddToCart) {
             onAddToCart(food);
-          } else {
-            // حذف خودکار آیتم ناموجود از سبد
-            if (onAddToCart.removeItem) {
-              onAddToCart.removeItem(food.item_id);
-            }
           }
         }}
-        disabled={added || food.state !== "available"}
+        disabled={!onAddToCart || added || food.state !== "available"}
         sx={{
           backgroundColor:
             added || food.state !== "available" ? "gray" : "#12372A",
@@ -138,7 +141,9 @@ const FoodCard = ({ food, onAddToCart, added }) => {
           borderRadius: 20,
         }}
       >
-        {food.state !== "available"
+        {!localStorage.getItem("access")
+          ? "افزودن"
+          : food.state !== "available"
           ? "ناموجود"
           : added
           ? "افزوده شد"

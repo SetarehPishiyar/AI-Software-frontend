@@ -314,7 +314,7 @@ const EditProfile = () => {
             label="استان"
           >
             {iranProvinces.map((p) => (
-              <MenuItem key={p.en} value={p.en}>
+              <MenuItem key={p.fa} value={p.fa}>
                 {p.fa}
               </MenuItem>
             ))}
