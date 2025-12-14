@@ -54,7 +54,7 @@ const HomePage = () => {
       </Box>
 
       <Box component="section" sx={{ width: "100%" }}>
-        <ProductSlider title="پیشنهاد شده به شما" />
+        <RecommendedProductSlider title="پیشنهاد شده به شما" />
       </Box>
 
       <Box component="section" sx={{ width: "100%" }}>

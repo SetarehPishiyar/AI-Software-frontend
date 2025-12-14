@@ -40,16 +40,14 @@ function Login() {
     )
       return "شماره موبایل وارد شده صحیح نیست";
     if (!password) return "لطفاً رمز عبور خود را وارد کنید";
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password))
-      return "رمز عبور باید شامل حروف کوچک، حروف بزرگ انگلیسی و عدد باشد و حداقل 8 کاراکتر داشته باشد";
+      return "رمز عبور باید حداقل 8 کاراکتر باشد و شامل حداقل یک حرف انگلیسی و یک عدد باشد";
     return null;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError("");
-
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -92,8 +90,12 @@ function Login() {
       }
     } catch (err) {
       console.error("AXIOS ERROR:", err);
-      if (err.response?.status === 401) setError("اطلاعات ورود صحیح نیست.");
-      else setError("مشکلی پیش آمده است. لطفاً دوباره تلاش کنید.");
+
+      if (err.response?.status === 401) {
+        setError("شماره موبایل یا رمز عبور اشتباه است.");
+      } else {
+        setError("مشکلی پیش آمده است. لطفاً دوباره تلاش کنید.");
+      }
     }
   };
 
@@ -142,8 +144,6 @@ function Login() {
         />
 
         <Box
-          component="form"
-          onSubmit={handleSubmit}
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -197,7 +197,8 @@ function Login() {
           )}
 
           <Button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             variant="contained"
             fullWidth
             sx={{
