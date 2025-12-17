@@ -240,7 +240,7 @@ const CartPage = () => {
                           display: "inline",
                         }}
                       >
-                        {Math.floor(item.price).toLocaleString()} تومان
+                        {Math.floor(item.price).toLocaleString()} هزار تومان
                       </Typography>
                       {item.discount > 0 && (
                         <Typography
@@ -255,7 +255,7 @@ const CartPage = () => {
                           {Math.floor(
                             item.price - (item.price * item.discount) / 100
                           ).toLocaleString()}{" "}
-                          تومان
+                          هزار تومان
                         </Typography>
                       )}
                     </CardContent>
@@ -342,7 +342,7 @@ const CartPage = () => {
                   display: "inline",
                 }}
               >
-                {Math.floor(totalPrice).toLocaleString()} تومان
+                {Math.floor(totalPrice).toLocaleString()} هزار تومان
               </Typography>
               {totalDiscount > 0 && (
                 <Typography
@@ -351,7 +351,7 @@ const CartPage = () => {
                   sx={{ fontWeight: "bold", display: "inline" }}
                 >
                   {Math.floor(totalPrice - totalDiscount).toLocaleString()}{" "}
-                  تومان
+                  هزار تومان
                 </Typography>
               )}
             </Box>

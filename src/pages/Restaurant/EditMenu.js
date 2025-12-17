@@ -268,7 +268,7 @@ const EditMenu = () => {
             />
             <TextField
               fullWidth
-              label="قیمت (به تومان)"
+              label="قیمت (به هزار تومان)"
               value={parseInt(editingFood.price)}
               type="number"
               onChange={(e) => handleEditChange("price", e.target.value)}
@@ -404,7 +404,7 @@ const EditMenu = () => {
                       variant="body1"
                       sx={{ paddingTop: 1, pointerEvents: "none" }}
                     >
-                      {parseInt(food.price)} تومان
+                      {parseInt(food.price)} هزار تومان
                     </Typography>
                     <Typography
                       variant="body2"

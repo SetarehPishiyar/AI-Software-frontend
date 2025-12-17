@@ -246,7 +246,7 @@ const CartPage = () => {
                       display: "inline",
                     }}
                   >
-                    {Math.floor(item.price).toLocaleString()} تومان
+                    {Math.floor(item.price).toLocaleString()} هزار تومان
                   </Typography>
                   {item.discount > 0 && (
                     <Typography
@@ -261,7 +261,7 @@ const CartPage = () => {
                       {Math.floor(
                         item.price - (item.price * item.discount) / 100
                       ).toLocaleString()}{" "}
-                      تومان
+                      هزار تومان
                     </Typography>
                   )}
                 </CardContent>
@@ -382,7 +382,7 @@ const CartPage = () => {
                 }
                 label={`تحویل با پیک (${Math.floor(
                   deliveryCost
-                ).toLocaleString()}) تومان`}
+                ).toLocaleString()}) هزار تومان`}
               />
             </RadioGroup>
           </FormControl>
@@ -393,7 +393,7 @@ const CartPage = () => {
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography>جمع سفارش:</Typography>
           <Typography>
-            {Math.floor(parseInt(totalPrice)).toLocaleString()} تومان
+            {Math.floor(parseInt(totalPrice)).toLocaleString()} هزار تومان
           </Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
@@ -405,17 +405,17 @@ const CartPage = () => {
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography>مجموع اقلام پس از تخفیف:</Typography>
           <Typography>
-            {(totalPrice - discount).toLocaleString()} تومان
+            {(totalPrice - discount).toLocaleString()} هزار تومان
           </Typography>
         </Box>
         <Divider sx={{ my: 2 }} />
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography>هزینه ارسال:</Typography>
-          <Typography>{DELIVERY_COST.toLocaleString()} تومان</Typography>
+          <Typography>{DELIVERY_COST.toLocaleString()} هزار تومان</Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography>مالیات (۹٪):</Typography>
-          <Typography>{tax.toLocaleString()} تومان</Typography>
+          <Typography>{tax.toLocaleString()} هزار تومان</Typography>
         </Box>
         <Divider sx={{ my: 2 }} />
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
@@ -423,7 +423,7 @@ const CartPage = () => {
             مبلغ قابل پرداخت:
           </Typography>
           <Typography variant="h6" fontWeight="bold" color="#12372A">
-            {finalAmount.toLocaleString()} تومان
+            {finalAmount.toLocaleString()} هزار تومان
           </Typography>
         </Box>
 

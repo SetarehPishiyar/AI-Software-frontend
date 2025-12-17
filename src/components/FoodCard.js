@@ -79,7 +79,7 @@ const FoodCard = ({ food, onAddToCart, added }) => {
                   marginRight: "8px",
                 }}
               >
-                {Math.floor(food.price).toLocaleString()} تومان
+                {Math.floor(food.price).toLocaleString()} هزار تومان
               </Typography>
               <Typography
                 variant="body1"
@@ -94,7 +94,7 @@ const FoodCard = ({ food, onAddToCart, added }) => {
             </>
           ) : (
             <Typography variant="body1">
-              {Math.floor(food.price).toLocaleString()} تومان
+              {Math.floor(food.price).toLocaleString()} هزار تومان
             </Typography>
           )}
         </Box>

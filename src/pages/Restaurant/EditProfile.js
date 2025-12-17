@@ -514,7 +514,7 @@ const EditProfile = () => {
         <TextField
           InputProps={{ sx: { color: "white" } }}
           value={Math.floor(deliveryCost)}
-          placeholder="هزینه پیک (به تومان)"
+          placeholder="هزینه پیک (به هزار تومان)"
           variant="outlined"
           fullWidth
           style={{

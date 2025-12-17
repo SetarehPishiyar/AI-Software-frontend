@@ -224,14 +224,14 @@ const FoodItemPage = () => {
                 color: foodItem.discount > 0 ? "gray" : "black",
               }}
             >
-              {Math.floor(foodItem.price).toLocaleString()} تومان
+              {Math.floor(foodItem.price).toLocaleString()} هزار تومان
             </Typography>
             {foodItem.discount > 0 && (
               <Typography sx={{ color: "green", fontWeight: "bold" }}>
                 {Math.floor(
                   foodItem.price * (1 - foodItem.discount / 100)
                 ).toLocaleString()}{" "}
-                تومان
+                هزار تومان
               </Typography>
             )}
           </Box>

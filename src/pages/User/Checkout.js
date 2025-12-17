@@ -199,13 +199,13 @@ const CheckoutPage = () => {
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography>جمع سفارش:</Typography>
-            <Typography>{itemsTotal?.toLocaleString()} تومان</Typography>
+            <Typography>{itemsTotal?.toLocaleString()} هزار تومان</Typography>
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography color="success.main">سود شما از این خرید:</Typography>
             <Typography color="success.main">
-              -{discount?.toLocaleString()} تومان
+              -{discount?.toLocaleString()} هزار تومان
             </Typography>
           </Box>
 
@@ -214,18 +214,18 @@ const CheckoutPage = () => {
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography>مجموع اقلام پس از تخفیف:</Typography>
             <Typography>
-              {(itemsTotal - discount)?.toLocaleString()} تومان
+              {(itemsTotal - discount)?.toLocaleString()} هزار تومان
             </Typography>
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography>هزینه ارسال:</Typography>
-            <Typography>{shippingCost?.toLocaleString()} تومان</Typography>
+            <Typography>{shippingCost?.toLocaleString()} هزار تومان</Typography>
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography>مالیات (۹٪):</Typography>
-            <Typography>{tax?.toLocaleString()} تومان</Typography>
+            <Typography>{tax?.toLocaleString()} هزار تومان</Typography>
           </Box>
 
           <Divider sx={{ my: 2, borderColor: "#12372A" }} />
@@ -235,7 +235,7 @@ const CheckoutPage = () => {
               مبلغ قابل پرداخت:
             </Typography>
             <Typography variant="h6" fontWeight="bold" color="#12372A">
-              {totalPrice?.toLocaleString()} تومان
+              {totalPrice?.toLocaleString()} هزار تومان
             </Typography>
           </Box>
         </Box>
