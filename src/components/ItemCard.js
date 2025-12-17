@@ -22,8 +22,12 @@ const ItemCard = ({ item, onClick }) => {
         borderRadius: "20px",
         backgroundColor: "#FBFADA",
         boxShadow: 0,
-        "&:hover": { transform: "scale(1.05)", border: "2px solid #12372A" },
         textAlign: "center",
+        transition: "all 0.2s ease",
+        "&:hover": {
+          transform: "scale(1.05)",
+          border: "2px solid #12372A",
+        },
       }}
     >
       <CardMedia
@@ -32,14 +36,41 @@ const ItemCard = ({ item, onClick }) => {
         image={imgSrc}
         alt={item.name || "Item"}
         onError={() => setImgSrc(PLACEHOLDER_IMG)}
+        sx={{ borderRadius: "12px" }}
       />
+
       <CardContent sx={{ p: 1 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+        {/* نام آیتم */}
+        <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 0.5 }}>
           {item.name}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          قیمت: {Math.floor(parseFloat(item.price))} تومان
-        </Typography>
+
+        {/* نام رستوران */}
+        {item.restaurant_name && (
+          <Typography
+            variant="body2"
+            sx={{ color: "#12372A", fontWeight: 500 }}
+          >
+            {item.restaurant_name}
+          </Typography>
+        )}
+
+        {/* شهر / استان */}
+        {item.restaurant_city && (
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary", display: "block" }}
+          >
+            {item.restaurant_city}
+          </Typography>
+        )}
+
+        {/* قیمت */}
+        {item.price && (
+          <Typography variant="body2" sx={{ mt: 0.5, fontWeight: "bold" }}>
+            قیمت: {Math.floor(parseFloat(item.price))} هزار تومان
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );
