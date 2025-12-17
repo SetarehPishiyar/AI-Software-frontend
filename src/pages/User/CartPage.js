@@ -31,47 +31,30 @@ const CartPage = () => {
     0
   );
 
-useEffect(() => {
-  if (restaurantId) {
-    fetchCartData();
-  }
-}, [restaurantId]);
-
-const fetchCartData = async () => {
-  try {
-    const response = await axiosInstance.get("/customer/carts", {
-      params: { restaurant_id: restaurantId },
-    });
-
-    const filteredData = response?.data.filter(
-      (cart) => cart.restaurant === parseInt(restaurantId)
-    );
-
-    if (filteredData?.length !== 0) {
-      setCartID(parseInt(filteredData[0].id));
-      setTotalPrice(parseInt(filteredData[0].total_price));
-      setCartItems(response.data?.[0]?.cart_items);
-
-      response.data[0]?.cart_items.forEach(async (item) => {
-        if (item.state !== "available") {
-          try {
-            await axiosInstance.put(`/customer/carts/${filteredData[0].id}`, {
-              cart_item_id: item.id,
-              count: 0,
-            });
-          } catch (err) {
-            console.error(
-              "خطا در حذف آیتم ناموجود از سبد:",
-              err.response?.data || err
-            );
-          }
-        }
-      });
+  useEffect(() => {
+    if (restaurantId) {
+      fetchCartData();
     }
-  } catch (error) {
-    console.error("خطا در دریافت اطلاعات سبد خرید:", error);
-  }
-};
+  }, [restaurantId]);
+
+  const fetchCartData = async () => {
+    try {
+      const response = await axiosInstance.get("/customer/carts", {
+        params: { restaurant_id: restaurantId },
+      });
+
+      const filteredData = response?.data.filter(
+        (cart) => cart.restaurant === parseInt(restaurantId)
+      );
+      if (filteredData?.length !== 0) {
+        setCartID(parseInt(filteredData[0].id));
+        setTotalPrice(parseInt(filteredData[0].total_price));
+        setCartItems(response.data?.[0]?.cart_items);
+      }
+    } catch (error) {
+      console.error("خطا در دریافت اطلاعات سبد خرید:", error);
+    }
+  };
 
   const handleQuantityChange = async (cartItemId, delta) => {
     try {
@@ -162,7 +145,7 @@ const fetchCartData = async () => {
         </Toolbar>
       </AppBar>
 
-      <Container sx={{ mt: 3, mb: 8, width:"80%" }}>
+      <Container sx={{ mt: 3, mb: 8, width: "80%" }}>
         {cartItems.length === 0 ? (
           <Typography
             variant="h6"
@@ -377,13 +360,13 @@ const fetchCartData = async () => {
               <Button
                 variant="contained"
                 sx={{
-                  backgroundColor: "#12372A !important", 
-                  color: "#FBFADA !important", 
+                  backgroundColor: "#12372A !important",
+                  color: "#FBFADA !important",
                   fontSize: "1.1rem",
                   borderRadius: 2,
                   padding: "10px 20px !important",
                   "&:hover": {
-                    backgroundColor: "#264639ff !important", 
+                    backgroundColor: "#264639ff !important",
                   },
                 }}
                 onClick={() =>

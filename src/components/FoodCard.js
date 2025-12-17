@@ -8,8 +8,13 @@ import {
   Box,
 } from "@mui/material";
 import { PLACEHOLDER_IMG } from "../utills/constants";
-const isLoggedIn = !!localStorage.getItem("access");
+
 const FoodCard = ({ food, onAddToCart, added }) => {
+  const isAvailable = food.state === "available";
+
+  const buttonDisabled = added || !isAvailable;
+  const buttonText = !isAvailable ? "ناموجود" : added ? "افزوده شد" : "افزودن";
+
   return (
     <Card
       sx={{
@@ -53,6 +58,7 @@ const FoodCard = ({ food, onAddToCart, added }) => {
         <Typography variant="h6" sx={{ pointerEvents: "none" }}>
           {food.name}
         </Typography>
+
         <Typography
           variant="body2"
           color="text.secondary"
@@ -60,6 +66,7 @@ const FoodCard = ({ food, onAddToCart, added }) => {
         >
           {food.description}
         </Typography>
+
         <Box sx={{ paddingTop: 2 }}>
           {food.discount > 0 ? (
             <>
@@ -92,26 +99,18 @@ const FoodCard = ({ food, onAddToCart, added }) => {
           )}
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2, marginTop: 1 }}>
+        {/* ✅ نمایش وضعیت */}
+        <Box sx={{ mt: 1 }}>
           <Typography
             variant="body2"
             sx={{
-              color: food.state === "available" ? "green" : "red",
-              fontWeight: 500,
+              color: isAvailable ? "green" : "red",
+              fontWeight: 600,
+              pointerEvents: "none",
             }}
           >
-            {food.state === "available" ? "موجود" : "ناموجود"}
+            {isAvailable ? "موجود" : "ناموجود"}
           </Typography>
-          {food.spice && (
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              تندی:{" "}
-              {food.spice === "No"
-                ? "کم"
-                : food.spice === "Mild"
-                ? "متوسط"
-                : "زیاد"}
-            </Typography>
-          )}
         </Box>
       </CardContent>
 
@@ -119,35 +118,19 @@ const FoodCard = ({ food, onAddToCart, added }) => {
         variant="contained"
         onClick={(e) => {
           e.stopPropagation();
-
-          const isLoggedIn = !!localStorage.getItem("access");
-
-          if (!isLoggedIn) {
-            alert("برای افزودن به سبد، ابتدا وارد حساب کاربری شوید");
-            return;
-          }
-
-          if (food.state === "available" && onAddToCart) {
-            onAddToCart(food);
-          }
+          if (!isAvailable || added) return;
+          onAddToCart(food);
         }}
-        disabled={!onAddToCart || added || food.state !== "available"}
+        disabled={buttonDisabled}
         sx={{
-          backgroundColor:
-            added || food.state !== "available" ? "gray" : "#12372A",
+          backgroundColor: buttonDisabled ? "gray" : "#12372A",
           color: "white",
           alignSelf: "center",
           margin: 1,
           borderRadius: 20,
         }}
       >
-        {!localStorage.getItem("access")
-          ? "افزودن"
-          : food.state !== "available"
-          ? "ناموجود"
-          : added
-          ? "افزوده شد"
-          : "افزودن"}
+        {buttonText}
       </Button>
     </Card>
   );
