@@ -118,6 +118,14 @@ const FoodCard = ({ food, onAddToCart, added }) => {
         variant="contained"
         onClick={(e) => {
           e.stopPropagation();
+          const access = localStorage.getItem("access");
+          const refresh = localStorage.getItem("refresh");
+          const isLoggedIn = !!access && !!refresh;
+
+          if (!isLoggedIn) {
+            alert("برای افزودن به سبد، ابتدا وارد حساب کاربری شوید");
+            return;
+          }
           if (!isAvailable || added) return;
           onAddToCart(food);
         }}
