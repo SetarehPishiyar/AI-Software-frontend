@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography, CircularProgress } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RestaurantCard from "../../components/RestaurantCard";
 import ItemCard from "../../components/ItemCard";
@@ -20,10 +20,12 @@ const categories = {
 const RestaurantListPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
   const [businessType, setBusinessType] = useState(
     searchParams.get("business_type") || "all"
   );
+
   const [userCity, setUserCity] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -32,7 +34,9 @@ const RestaurantListPage = () => {
     allRestaurants = [],
     items = [],
     error,
+    loading,
   } = useRestaurants(searchTerm, businessType);
+
   const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
   useEffect(() => {
@@ -52,6 +56,7 @@ const RestaurantListPage = () => {
         console.error("خطا در دریافت اطلاعات کاربر:", err);
       }
     };
+
     fetchUserCity();
   }, []);
 
@@ -59,6 +64,7 @@ const RestaurantListPage = () => {
 
   const findRestaurantName = (restaurantId) =>
     allRestaurants.find((r) => r.id === restaurantId)?.name || "";
+
   const filteredRestaurants = restaurants.filter((r) => {
     const cityMatch =
       isLoggedIn && userCity
@@ -70,28 +76,11 @@ const RestaurantListPage = () => {
     return r.name.toLowerCase().includes(searchTerm.toLowerCase()) && cityMatch;
   });
 
-const filteredItems = items.filter((item) => {
-  const restaurant = allRestaurants.find((r) => r.id === item.restaurant);
-
-  if (
-    searchTerm &&
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) {
-    return true;
-  }
-
-  if (!searchTerm) {
-    if (!restaurant) return false;
-    return isLoggedIn
-      ? (restaurant.city_name || restaurant.province || "")
-          .trim()
-          .toLowerCase() === userCity.toLowerCase()
-      : true;
-  }
-
-  return false;
-});
-
+  const filteredItems = !searchTerm
+    ? []
+    : items.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
   return (
     <Box sx={{ pb: 8, minHeight: "100vh", backgroundColor: "#ADBC9F" }}>
@@ -148,43 +137,72 @@ const filteredItems = items.filter((item) => {
         ))}
       </Box>
 
+      {/* Error */}
+      {error && (
+        <Typography color="error" sx={{ textAlign: "center", mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            mt: 3,
+          }}
+        >
+          <CircularProgress color="inherit" />
+          <Typography>در حال بارگذاری...</Typography>
+        </Box>
+      )}
+
       {/* Restaurants */}
-      {error && <Typography color="error">{error}</Typography>}
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          paddingInline: "30px",
-          justifyContent: "flex-end",
-          gap: 2,
-          direction: "rtl",
-        }}
-      >
-        {filteredRestaurants.length > 0 ? (
-          filteredRestaurants.map((restaurant) => (
-            <RestaurantCard
-              key={restaurant.id}
-              restaurant={restaurant}
-              isFavorite={isLoggedIn ? !!favorites[restaurant.id] : false}
-              toggleFavorite={
-                isLoggedIn
-                  ? toggleFavorite
-                  : () => alert("برای افزودن به علاقه‌مندی‌ها لطفاً وارد شوید")
-              }
-              onClick={() => navigate(`/customer/restaurants/${restaurant.id}`)}
-            />
-          ))
-        ) : (
-          <Typography sx={{ color: "#12372A" }}></Typography>
-        )}
-      </Box>
+      {!loading && (
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            paddingInline: "30px",
+            justifyContent: "flex-end",
+            gap: 2,
+            direction: "rtl",
+            mt: 2,
+          }}
+        >
+          {filteredRestaurants.length > 0 ? (
+            filteredRestaurants.map((restaurant) => (
+              <RestaurantCard
+                key={restaurant.id}
+                restaurant={restaurant}
+                isFavorite={isLoggedIn ? !!favorites[restaurant.id] : false}
+                toggleFavorite={
+                  isLoggedIn
+                    ? toggleFavorite
+                    : () =>
+                        alert("برای افزودن به علاقه‌مندی‌ها لطفاً وارد شوید")
+                }
+                onClick={() =>
+                  navigate(`/customer/restaurants/${restaurant.id}`)
+                }
+              />
+            ))
+          ) : (
+            <Typography sx={{ color: "#12372A" }}></Typography>
+          )}
+        </Box>
+      )}
 
       {/* Items */}
-      {filteredItems.length > 0 && (
+      {!loading && filteredItems.length > 0 && (
         <Box sx={{ marginTop: 4, paddingInline: "30px", direction: "rtl" }}>
-          <Typography variant="h5" sx={{ marginBottom: 2, direction:"ltr" }}>
+          <Typography variant="h5" sx={{ marginBottom: 2, direction: "ltr" }}>
             آیتم‌ها
           </Typography>
+
           <Box
             sx={{
               display: "flex",
@@ -212,7 +230,8 @@ const filteredItems = items.filter((item) => {
       )}
 
       {/* Empty state */}
-      {filteredRestaurants.length === 0 &&
+      {!loading &&
+        filteredRestaurants.length === 0 &&
         filteredItems.length === 0 &&
         !error && (
           <Typography sx={{ textAlign: "center", marginTop: 3 }}>

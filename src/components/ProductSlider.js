@@ -9,20 +9,23 @@ import {
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import RestaurantCard from "./RestaurantCard";
-import { useRestaurants } from "../contexts/RestaurantContext";
+import {
+  useRestaurants,
+  useRestaurantsLoading,
+} from "../contexts/RestaurantContext";
 import useFavorites from "../hooks/useFavorites";
 import { getUserInfo } from "../services/userService";
 
 const ProductSlider = ({ title }) => {
   const navigate = useNavigate();
-  const restaurants = useRestaurants(); // همه رستوران‌ها
+  const restaurants = useRestaurants();
+  const loadingRestaurants = useRestaurantsLoading(); 
   const { favorites, toggleFavorite } = useFavorites();
 
   const [userCity, setUserCity] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // دریافت شهر کاربر
   const fetchUserCity = async () => {
     try {
       const accessToken = localStorage.getItem("access");
@@ -46,18 +49,15 @@ const ProductSlider = ({ title }) => {
     fetchUserCity();
   }, []);
 
-  // فیلتر و مرتب سازی بهینه با useMemo
   const filteredRestaurants = useMemo(() => {
     if (!restaurants || restaurants.length === 0) return [];
 
-    // اگر کاربر لاگین نیست، همه رستوران‌ها رو مرتب کن و برگردون
     if (!isLoggedIn) {
       return [...restaurants]
         .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 5); // فقط چند رستوران اولیه
+        .slice(0, 5);
     }
 
-    // کاربر لاگین است، فیلتر بر اساس شهر
     if (userCity) {
       return [...restaurants]
         .filter((r) => {
@@ -71,9 +71,10 @@ const ProductSlider = ({ title }) => {
     return [];
   }, [restaurants, userCity, isLoggedIn]);
 
+  const isLoading = loadingRestaurants || loadingUser;
+
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
-      {/* عنوان */}
       <Typography
         variant="h3"
         sx={{
@@ -98,7 +99,7 @@ const ProductSlider = ({ title }) => {
         }}
       >
         <Grid container spacing={1} sx={{ flex: 1 }}>
-          {loadingUser ? (
+          {isLoading ? ( 
             <Box
               sx={{
                 width: "100%",
@@ -131,7 +132,6 @@ const ProductSlider = ({ title }) => {
           )}
         </Grid>
 
-        {/* دکمه مشاهده همه */}
         <Box sx={{ display: "flex", alignItems: "flex-start", pt: 1 }}>
           <IconButton
             onClick={() => navigate(`/search?name=`)}

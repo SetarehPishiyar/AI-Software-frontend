@@ -29,12 +29,11 @@ export function RestaurantProvider({ children }) {
   );
 }
 
-// هوک اصلاح‌شده
 export const useRestaurants = () => {
   const context = useContext(RestaurantContext);
   if (!context)
     throw new Error("useRestaurants must be used within RestaurantProvider");
-  return context.restaurants; // فقط آرایه را برمی‌گردونیم
+  return context.restaurants; 
 };
 
 export const useRestaurantsLoading = () => {

@@ -20,25 +20,37 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    const isAuthEndpoint =
+      originalRequest?.url?.includes("/auth/token") ||
+      originalRequest?.url?.includes("/auth/token/refresh") ||
+      originalRequest?.url?.includes("/auth/signup");
+
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       const refresh = localStorage.getItem("refresh");
 
-      if (refresh) {
-        try {
-          const res = await axios.post(
-            "http://localhost/api/auth/token/refresh",
-            { refresh }
-          );
-          localStorage.setItem("access", res.data.access);
-          originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
-          return axiosInstance(originalRequest);
-        } catch (err) {
-          localStorage.clear();
-          return Promise.reject(err);
-        }
-      } else {
-        return Promise.reject(new Error("No refresh token"));
+      if (!refresh) {
+        return Promise.reject(error);
+      }
+
+      try {
+        const res = await axios.post(
+          "http://localhost/api/auth/token/refresh",
+          { refresh }
+        );
+
+        localStorage.setItem("access", res.data.access);
+        originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
+
+        return axiosInstance(originalRequest);
+      } catch (err) {
+        localStorage.clear();
+        return Promise.reject(err);
       }
     }
 

@@ -1,159 +1,101 @@
-// import React, { useEffect, useState } from "react";
-// import { Box, Typography, CircularProgress } from "@mui/material";
-// import ProductSlider from "./ProductSlider";
-// import { getUserInfo } from "../services/userService";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
+import { ArrowForwardIos } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { getModelRecommendations } from "../services/modelService";
 
-// const RecommendedProductSlider = () => {
-//   const [products, setProducts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+const RecommendedItemCard = ({ item, onClick }) => {
+  return (
+    <Box
+      onClick={onClick}
+      sx={{
+        minWidth: 230,
+        maxWidth: 230,
+        height: 300,
+        borderRadius: 5,
+        backgroundColor: "#FBFADA",
+        color: "#12372A",
+        p: 2,
+        cursor: "pointer",
+        boxShadow: 2,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        "&:hover": { transform: "scale(1.02)" },
+        transition: "transform 0.15s ease",
+      }}
+    >
+      <Box>
+        <Typography sx={{ fontWeight: "bold", mb: 1 }}>{item.name}</Typography>
 
-//   useEffect(() => {
-//     const fetchRecommended = async () => {
-//       try {
-//         // چک توکن‌ها
-//         const accessToken = localStorage.getItem("access");
-//         const refreshToken = localStorage.getItem("refresh");
+        <Typography variant="body2" sx={{ opacity: 0.85 }}>
+          مدل: {item.state ?? "-"}
+        </Typography>
 
-//         if (!accessToken || !refreshToken) {
-//           setIsLoggedIn(false);
-//           setLoading(false);
-//           return;
-//         }
+        <Typography variant="body2" sx={{ opacity: 0.85, mt: 0.5 }}>
+          امتیاز: {typeof item.score === "number" ? item.score.toFixed(4) : "-"}
+        </Typography>
+      </Box>
 
-//         setIsLoggedIn(true);
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+          {item.price ? `${item.price.toLocaleString()} تومان` : "قیمت نامشخص"}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
 
-//         // گرفتن اطلاعات کاربر
-//         // const userData = await getUserInfo();
-//         // console.log(userData)
-//         // if (!userData || !userData.user.id) {
-//         //   console.warn("کاربر لاگین است ولی userData یا id موجود نیست.");
-//         //   setLoading(false);
-//         //   return;
-//         // }
+const RecommendedProductSlider = ({ title = "محصولات پیشنهادی برای شما" }) => {
+  const navigate = useNavigate();
+  const railRef = useRef(null);
 
-//         // const userId = userData.user.id;
-//         const n = 10;
-//         const requestUrl = `/model/recommend/1?n_recs=${n}`;
-//         console.log("Sending request to:", requestUrl);
-
-//         // fetch اصلی
-//         const response = await fetch(requestUrl);
-
-//         // clone برای debug قبل از parse
-//         const responseClone = response.clone();
-
-//         // چاپ اطلاعات اولیه
-//         console.log("Response status:", response.status);
-//         console.log("Response headers:", [...response.headers]);
-
-//         // parse JSON
-//         const data = await response.json();
-
-//         // debug raw text
-//         const debugText = await responseClone.text();
-//         console.log("Raw response body:", debugText);
-
-//         if (!response.ok) {
-//           console.error("خطا در دریافت داده‌ها از مدل");
-//           setLoading(false);
-//           return;
-//         }
-//         console.log(data)
-//         const recommendedProducts = data.map((item) => ({
-//           id: item.item_id,
-//           name: item.name,
-//           image: item.image_url,
-//           price: item.price,
-//           state: item.state,
-//         }));
-
-//         console.log("Recommended products:", recommendedProducts);
-
-//         setProducts(recommendedProducts);
-//       } catch (err) {
-//         console.error("خطا در fetch کردن محصولات پیشنهادی:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchRecommended();
-//   }, []);
-
-//   if (loading)
-//     return (
-//       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-//         <CircularProgress />
-//       </Box>
-//     );
-
-//   if (!isLoggedIn)
-//     return (
-//       <Typography sx={{ textAlign: "center", mt: 2 }}>
-//         برای مشاهده محصولات پیشنهادی لطفاً وارد شوید.
-//       </Typography>
-//     );
-
-//   if (!products.length)
-//     return (
-//       <Typography sx={{ textAlign: "center", mt: 2 }}>
-//         محصول پیشنهادی موجود نیست.
-//       </Typography>
-//     );
-
-//   return (
-//     <Box sx={{ width: "100%", padding: 2 }}>
-//       <Typography variant="h6" sx={{ mb: 2 }}>
-//         محصولات پیشنهادی برای شما
-//       </Typography>
-//       <ProductSlider products={products} />
-//     </Box>
-//   );
-// };
-
-// export default RecommendedProductSlider;
-
-import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
-import ProductSlider from "./ProductSlider";
-import { getUserInfo } from "../services/userService";
-
-const RecommendedProductSlider = () => {
-  const [productsRaw, setProductsRaw] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchRecommended = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const accessToken = localStorage.getItem("access");
         const refreshToken = localStorage.getItem("refresh");
 
         if (!accessToken || !refreshToken) {
           setIsLoggedIn(false);
-          setLoading(false);
+          setProducts([]);
           return;
         }
 
         setIsLoggedIn(true);
 
-        // نمونه کاربر، userId واقعی از getUserInfo بگیر
-        // const userData = await getUserInfo();
-        // const userId = userData?.user?.id || 1; // fallback به 1 برای تست
+        const userId = 1;
         const n = 10;
 
-        const requestUrl = `/model/recommend/1?n_recs=${n}`;
-        console.log("Sending request to:", requestUrl);
+        const data = await getModelRecommendations(userId, n);
 
-        const response = await fetch(requestUrl);
-        const rawText = await response.text();
+        const mapped = (data || []).slice(0, 10).map((item) => ({
+          id: item.item_id,
+          name: `Item #${item.item_id}`,
+          image: "",
+          price: null,
+          state: item.item_id_model,
+          score: item.score,
+        }));
 
-        console.log("Raw response body:", rawText);
-        setProductsRaw(rawText); // نمایش بدون parse
-      } catch (err) {
-        console.error("خطا در fetch کردن محصولات پیشنهادی:", err);
-        setProductsRaw(`خطا: ${err.message}`);
+        setProducts(mapped);
+      } catch (e) {
+        const msg =
+          e?.response?.data?.detail ||
+          e?.response?.data?.message ||
+          e?.message ||
+          "خطا در دریافت پیشنهادها";
+
+        setError(msg);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -162,36 +104,162 @@ const RecommendedProductSlider = () => {
     fetchRecommended();
   }, []);
 
-  if (loading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-        <CircularProgress />
-      </Box>
-    );
+  const scrollRail = (dir = "right") => {
+    const el = railRef.current;
+    if (!el) return;
 
-  if (!isLoggedIn)
+    const step = 500;
+    el.scrollBy({
+      left: dir === "right" ? step : -step,
+      behavior: "smooth",
+    });
+  };
+
+  const CenterMessage = ({ children, color = "#FBFADA" }) => (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+        color,
+        textAlign: "center",
+        px: 2,
+      }}
+    >
+      {children}
+    </Box>
+  );
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <CenterMessage>
+          <CircularProgress color="inherit" />
+          <Typography variant="body1" sx={{ ml: 2 }}>
+            در حال بارگذاری پیشنهادها...
+          </Typography>
+        </CenterMessage>
+      );
+    }
+
+    if (!isLoggedIn) {
+      return (
+        <CenterMessage>
+          <Typography variant="body1">
+            برای مشاهده محصولات پیشنهادی لطفاً وارد شوید.
+          </Typography>
+        </CenterMessage>
+      );
+    }
+
+    if (error) {
+      return (
+        <CenterMessage color="#ffb3b3">
+          <Typography variant="body1">
+            خطا در دریافت پیشنهادها: {error}
+          </Typography>
+        </CenterMessage>
+      );
+    }
+
+    if (!products.length) {
+      return (
+        <CenterMessage>
+          <Typography variant="body1">محصول پیشنهادی موجود نیست.</Typography>
+        </CenterMessage>
+      );
+    }
+
     return (
-      <Typography sx={{ textAlign: "center", mt: 2 }}>
-        برای مشاهده محصولات پیشنهادی لطفاً وارد شوید.
-      </Typography>
+      <>
+        <IconButton
+          onClick={() => scrollRail("left")}
+          sx={{
+            backgroundColor: "#FBFADA",
+            width: 44,
+            height: 44,
+            "&:hover": {
+              backgroundColor: "#cfe3c5",
+              transform: "scale(1.15)",
+            },
+          }}
+        >
+          <ArrowForwardIos sx={{ color: "#12372A", rotate: "180deg" }} />
+        </IconButton>
+
+        <Box
+          ref={railRef}
+          sx={{
+            flex: 1,
+            display: "flex",
+            gap: 2,
+            overflowX: "hidden",
+            scrollBehavior: "smooth",
+            py: 2,
+            px: 1,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "rgba(251,250,218,0.35)",
+              borderRadius: 10,
+            },
+          }}
+        >
+          {products.map((p) => (
+            <RecommendedItemCard
+              key={p.id}
+              item={p}
+              onClick={() => navigate(`/customer/restaurants/resid/${p.id}`)}
+            />
+          ))}
+        </Box>
+
+        <IconButton
+          onClick={() => scrollRail("right")}
+          sx={{
+            backgroundColor: "#FBFADA",
+            width: 44,
+            height: 44,
+            "&:hover": {
+              backgroundColor: "#cfe3c5",
+              transform: "scale(1.15)",
+            },
+          }}
+        >
+          <ArrowForwardIos sx={{ color: "#12372A" }} />
+        </IconButton>
+      </>
     );
+  };
 
   return (
-    <Box sx={{ width: "100%", padding: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        پاسخ خام مدل:
-      </Typography>
-      <Box
+    <Box sx={{ width: "100%", overflowX: "hidden" }}>
+      <Typography
+        variant="h3"
         sx={{
-          p: 2,
-          backgroundColor: "#f0f0f0",
-          borderRadius: 2,
-          fontFamily: "monospace",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
+          pt: 5,
+          textAlign: "center",
+          color: "#FBFADA",
+          fontWeight: "bold",
+          backgroundColor: "#12372A",
         }}
       >
-        {productsRaw || "پاسخی دریافت نشده است."}
+        {title}
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          backgroundColor: "#12372A",
+          p: 3,
+          height: "70vh",
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        {renderContent()}
       </Box>
     </Box>
   );

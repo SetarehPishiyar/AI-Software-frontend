@@ -21,7 +21,6 @@ const HomePage = () => {
   const { user } = useUser();
 
   useEffect(() => {
-    // اگر کاربر رستوران لاگین کرده بود، مستقیم به پروفایلش بره
     const resID = localStorage.getItem("res_id");
     if (resID && resID !== "undefined") {
       navigate(`/restaurant/${resID}/profile`);

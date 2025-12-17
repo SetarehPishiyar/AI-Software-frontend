@@ -17,7 +17,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PhoneEnabledIcon from "@mui/icons-material/PhoneEnabled";
 import LoginImg from "../assets/imgs/login.png";
 import YumziImg from "../assets/imgs/yumzi_icon.png";
-import axiosInstance from "../utills/axiosInstance";
+import publicAxiosInstance from "../utills/publicAxiosInstance";
 import { useUser } from "../contexts/UserContext";
 
 function Login() {
@@ -55,7 +55,7 @@ function Login() {
     }
 
     try {
-      const res = await axiosInstance.post("/auth/token", {
+      const res = await publicAxiosInstance.post("/auth/token", {
         phone_number: `98${phoneNumber.slice(1)}`,
         password,
       });

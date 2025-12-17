@@ -1,6 +1,5 @@
-// src/services/restaurantService.js
 import publicAxiosInstance from "../utills/publicAxiosInstance";
-import axiosInstance from "../utills/axiosInstance"; // برای protected APIs
+import axiosInstance from "../utills/axiosInstance"; 
 
 export const getRestaurants = async () => {
   try {
@@ -13,7 +12,6 @@ export const getRestaurants = async () => {
   }
 };
 
-// جدید: گرفتن پروفایل رستوران جاری (Protected)
 export const getRestaurantProfile = async () => {
   try {
     const response = await axiosInstance.get("/restaurant/profiles/me");
