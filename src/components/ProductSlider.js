@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -19,35 +19,56 @@ import { getUserInfo } from "../services/userService";
 const ProductSlider = ({ title }) => {
   const navigate = useNavigate();
   const restaurants = useRestaurants();
-  const loadingRestaurants = useRestaurantsLoading(); 
-  const { favorites, toggleFavorite } = useFavorites();
+  const loadingRestaurants = useRestaurantsLoading();
 
   const [userCity, setUserCity] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
+
+  const isLoggedIn = useMemo(() => {
+    const accessToken = localStorage.getItem("access");
+    const refreshToken = localStorage.getItem("refresh");
+    return !!accessToken && !!refreshToken;
+  }, []);
+
+    const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
   const fetchUserCity = async () => {
     try {
       const accessToken = localStorage.getItem("access");
       const refreshToken = localStorage.getItem("refresh");
-      if (!accessToken || !refreshToken) return setLoadingUser(false);
-
-      setIsLoggedIn(true);
+      if (!accessToken || !refreshToken) return;
 
       const userData = await getUserInfo();
-      if (userData?.province) {
-        setUserCity(userData.province.trim());
-      }
+      if (userData?.province) setUserCity(userData.province.trim());
     } catch (err) {
       console.error("خطا در دریافت اطلاعات کاربر:", err);
-    } finally {
-      setLoadingUser(false);
     }
   };
 
   useEffect(() => {
-    fetchUserCity();
+    const run = async () => {
+      setLoadingUser(true);
+      await fetchUserCity();
+      setLoadingUser(false);
+    };
+    run();
   }, []);
+
+  const handleToggleFavorite = useCallback(
+    (restaurantId) => {
+      const accessToken = localStorage.getItem("access");
+      const refreshToken = localStorage.getItem("refresh");
+
+      if (!accessToken || !refreshToken) {
+        alert("برای افزودن به علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید");
+        navigate("/login");
+        return;
+      }
+
+      toggleFavorite(restaurantId);
+    },
+    [toggleFavorite, navigate]
+  );
 
   const filteredRestaurants = useMemo(() => {
     if (!restaurants || restaurants.length === 0) return [];
@@ -99,7 +120,7 @@ const ProductSlider = ({ title }) => {
         }}
       >
         <Grid container spacing={1} sx={{ flex: 1 }}>
-          {isLoading ? ( 
+          {isLoading ? (
             <Box
               sx={{
                 width: "100%",
@@ -120,7 +141,7 @@ const ProductSlider = ({ title }) => {
                 key={r.id}
                 restaurant={r}
                 isFavorite={favorites[r.id]}
-                toggleFavorite={toggleFavorite}
+                toggleFavorite={() => handleToggleFavorite(r.id)}
                 onClick={() => navigate(`/customer/restaurants/${r.id}`)}
                 showDetails={true}
               />
