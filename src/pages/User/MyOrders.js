@@ -51,9 +51,7 @@ const MyOrders = () => {
 
   const userId = user?.user?.id;
   const { orders, reviewsMap } = useOrders(userId);
-
-
-  console.log(useOrders(userId))
+  console.log(orders, reviewsMap);
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);

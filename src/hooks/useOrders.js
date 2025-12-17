@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../utills/axiosInstance";
-import publicAxiosInstance from "../utills/publicAxiosInstance";
 
 export const useOrders = (userId) => {
   const [orders, setOrders] = useState([]);
@@ -17,8 +16,8 @@ export const useOrders = (userId) => {
           if (!order.order_items || order.order_items.length === 0) continue;
           let found = false;
           for (let item of order.order_items) {
-            const res = await publicAxiosInstance.get(
-              `/customer/items/${item.id}/reviews/`
+            const res = await axiosInstance.get(
+              `/customer/items/${item.item || item.id}/reviews/`
             );
             const myReview = res.data.find((r) => r.user_id === userId);
             if (myReview) {
