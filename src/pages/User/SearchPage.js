@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Box, TextField, Typography, CircularProgress } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RestaurantCard from "../../components/RestaurantCard";
-import ItemCard from "../../components/ItemCard";
 import useFavorites from "../../hooks/useFavorites";
 import useRestaurants from "../../hooks/useRestaurants";
 import YumziImg from "../../assets/imgs/yumzi_icon.png";
@@ -52,12 +51,10 @@ const RestaurantListPage = () => {
   }, [isLoggedIn]);
 
   const provinceParam = isLoggedIn ? (userCity ? userCity : null) : "";
-  console.log(provinceParam)
 
   const {
     restaurants = [],
     allRestaurants = [],
-    items = [],
     error,
     loading,
   } = useRestaurants(searchTerm, businessType, provinceParam);
@@ -66,19 +63,10 @@ const RestaurantListPage = () => {
 
   const handleCategoryClick = (type) => setBusinessType(type);
 
-  const findRestaurantName = (restaurantId) =>
-    allRestaurants.find((r) => r.id === restaurantId)?.name || "";
-
   const filteredRestaurants = restaurants.filter((r) => {
     if (!searchTerm) return true;
     return r.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
-
-  const filteredItems = !searchTerm
-    ? []
-    : items.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
 
   return (
     <Box sx={{ pb: 8, minHeight: "100vh", backgroundColor: "#ADBC9F" }}>
@@ -107,7 +95,7 @@ const RestaurantListPage = () => {
       >
         <TextField
           variant="outlined"
-          placeholder="جستجوی نام فروشگاه یا غذا..."
+          placeholder="جستجوی نام فروشگاه..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{ width: "80%", marginBottom: 3 }}
@@ -194,48 +182,12 @@ const RestaurantListPage = () => {
         </Box>
       )}
 
-      {/* Items */}
-      {!loading && filteredItems.length > 0 && (
-        <Box sx={{ marginTop: 4, paddingInline: "30px", direction: "rtl" }}>
-          <Typography variant="h5" sx={{ marginBottom: 2, direction: "ltr" }}>
-            آیتم‌ها
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              justifyContent: "flex-end",
-            }}
-          >
-            {filteredItems.map((item) => (
-              <ItemCard
-                key={item.item_id}
-                item={{
-                  ...item,
-                  restaurant_name: findRestaurantName(item.restaurant),
-                }}
-                onClick={() =>
-                  navigate(
-                    `/customer/restaurants/${item.restaurant}/${item.item_id}`
-                  )
-                }
-              />
-            ))}
-          </Box>
-        </Box>
-      )}
-
       {/* Empty state */}
-      {!loading &&
-        filteredRestaurants.length === 0 &&
-        filteredItems.length === 0 &&
-        !error && (
-          <Typography sx={{ textAlign: "center", marginTop: 3 }}>
-            هیچ موردی یافت نشد.
-          </Typography>
-        )}
+      {!loading && filteredRestaurants.length === 0 && !error && (
+        <Typography sx={{ textAlign: "center", marginTop: 3 }}>
+          هیچ موردی یافت نشد.
+        </Typography>
+      )}
     </Box>
   );
 };

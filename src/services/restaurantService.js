@@ -1,20 +1,16 @@
 import publicAxiosInstance from "../utills/publicAxiosInstance";
 import axiosInstance from "../utills/axiosInstance"; 
 
-export const getRestaurants = async (city) => {
+export const getRestaurants = async (city_name) => {
   try {
-    const params = city ? { city } : {};
+    const params = city_name ? { city_name } : {};
     console.log("params  " ,params)
 
     const response = await publicAxiosInstance.get("/restaurant/profiles", {
       params,
     });
 
-    const sorted = response.data.restaurants.sort(
-      (a, b) => (b.score || 0) - (a.score || 0)
-    );
-
-    return sorted;
+    return response.data;
   } catch (err) {
     console.error(err);
     return [];

@@ -4,18 +4,17 @@ import axiosInstance from "../utills/publicAxiosInstance";
 const useRestaurants = (
   searchTerm = "",
   businessType = "all",
-  city = ""
+  city_name = ""
 ) => {
   const [restaurants, setRestaurants] = useState([]);
   const [allRestaurants, setAllRestaurants] = useState([]);
-  const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (city === null) return;
+    if (city_name === null) return;
 
     const fetchRestaurants = async () => {
       if (isMounted) setLoading(true);
@@ -28,7 +27,7 @@ const useRestaurants = (
               businessType !== "all" && {
                 business_type: businessType,
               }),
-            ...(city && { city }), 
+            ...(city_name && { city_name }),
           },
         });
 
@@ -36,16 +35,14 @@ const useRestaurants = (
 
         if (!isMounted) return;
 
-        setAllRestaurants(data.restaurants || []);
-        setRestaurants(data.restaurants || []);
-        setItems(data.items || []);
+        setAllRestaurants(data || []);
+        setRestaurants(data || []);
         setError(null);
       } catch (err) {
         console.error(err);
         if (!isMounted) return;
 
         setRestaurants([]);
-        setItems([]);
         setAllRestaurants([]);
         setError("مشکلی در دریافت داده‌ها پیش آمد.");
       } finally {
@@ -58,9 +55,9 @@ const useRestaurants = (
     return () => {
       isMounted = false;
     };
-  }, [searchTerm, businessType, city]);
+  }, [searchTerm, businessType, city_name]);
 
-  return { restaurants, allRestaurants, items, error, loading };
+  return { restaurants, allRestaurants, error, loading };
 };
 
 export default useRestaurants;

@@ -7,6 +7,7 @@ import YumziImg from "../../assets/imgs/yumzi_icon.png";
 import { styled } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import axiosInstance from "../../utills/publicAxiosInstance";
+import { getUserInfo } from "../../services/userService";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -46,9 +47,10 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurantList, setRestaurantList] = useState([]);
-  const [allRestaurants, setAllRestaurants] = useState([]);
-  const [items, setItems] = useState([]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+  const [userCity, setUserCity] = useState(""); 
+
   const navigate = useNavigate();
 
   const checkAuthentication = () => {
@@ -59,46 +61,63 @@ const Header = () => {
 
   useEffect(() => {
     checkAuthentication();
-    const handleStorageChange = () => {
-      checkAuthentication();
-    };
+    const handleStorageChange = () => checkAuthentication();
 
     window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const handleLoginClick = () => {
-    navigate("/login");
-  };
+  useEffect(() => {
+    const fetchUserCity = async () => {
+      try {
+        if (!isLoggedIn) {
+          setUserCity("");
+          return;
+        }
 
-  const handleProfileClick = () => {
-    navigate(`/customer/profile`);
-  };
+        const userData = await getUserInfo();
+        if (userData?.province) {
+          setUserCity(userData.province.trim());
+        } else {
+          setUserCity("");
+        }
+      } catch (err) {
+        console.error("خطا در دریافت اطلاعات کاربر:", err);
+        setUserCity("");
+      }
+    };
+
+    fetchUserCity();
+  }, [isLoggedIn]);
+
+  const handleLoginClick = () => navigate("/login");
+  const handleProfileClick = () => navigate(`/customer/profile`);
 
   const fetchRestaurantList = async (query) => {
     if (query.trim() === "") {
       setRestaurantList([]);
-      setItems([]);
+      return;
+    }
+
+    if (isLoggedIn && !userCity) {
+      setRestaurantList([]);
       return;
     }
 
     try {
-      const params = { query };
+      const params = {
+        query,
+        ...(isLoggedIn && userCity ? { city_name: userCity } : {}),
+      };
 
       const response = await axiosInstance.get("/restaurant/profiles", {
         params,
       });
 
-      const restaurants = await axiosInstance.get("/restaurant/profiles");
-      setAllRestaurants(restaurants.data.restaurants);
-      setRestaurantList(response.data.restaurants);
-      setItems(response.data.items);
+      setRestaurantList(response.data || []);
     } catch (error) {
       console.error("Error fetching restaurant list:", error);
       setRestaurantList([]);
-      setItems([]);
     }
   };
 
@@ -106,9 +125,7 @@ const Header = () => {
     const value = e.target.value;
     setSearchTerm(value);
 
-    if (debounceTimeout) {
-      clearTimeout(debounceTimeout);
-    }
+    if (debounceTimeout) clearTimeout(debounceTimeout);
 
     const timeout = setTimeout(() => {
       fetchRestaurantList(value);
@@ -119,8 +136,18 @@ const Header = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      navigate(`/search?query=${searchTerm}`);
+      const cityParam =
+        isLoggedIn && userCity
+          ? `&city_name=${encodeURIComponent(userCity)}`
+          : "";
+      navigate(`/search?query=${encodeURIComponent(searchTerm)}${cityParam}`);
     }
+  };
+
+  const handleRestaurantClick = (id) => {
+    navigate(`/customer/restaurants/${id}`);
+    setSearchTerm("");
+    setRestaurantList([]);
   };
 
   return (
@@ -137,10 +164,12 @@ const Header = () => {
           alt="Login Illustration"
           style={{ width: "140px", marginLeft: "15px" }}
         />
+
         <Search>
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
+
           <StyledInputBase
             placeholder="جستجو در یامزی"
             inputProps={{ "aria-label": "search" }}
@@ -148,7 +177,8 @@ const Header = () => {
             onChange={handleSearchChange}
             onKeyPress={handleKeyPress}
           />
-          {(restaurantList.length > 0 || items.length > 0) && (
+
+          {restaurantList.length > 0 && (
             <div
               role="button"
               tabIndex="0"
@@ -167,9 +197,7 @@ const Header = () => {
               }}
               onMouseDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.stopPropagation();
-                }
+                if (e.key === "Enter" || e.key === " ") e.stopPropagation();
               }}
             >
               <ul style={{ listStyle: "none", margin: 0, padding: "10px" }}>
@@ -185,10 +213,9 @@ const Header = () => {
                         borderBottom: "1px solid #f0f0f0",
                         display: "flex",
                         alignItems: "center",
+                        width: "100%",
                       }}
-                      onClick={() =>
-                        navigate(`/customer/restaurants/${restaurant.id}`)
-                      }
+                      onClick={() => handleRestaurantClick(restaurant.id)}
                     >
                       {restaurant.photo && (
                         <img
@@ -202,6 +229,7 @@ const Header = () => {
                           }}
                         />
                       )}
+
                       <div>
                         <div
                           style={{
@@ -227,103 +255,11 @@ const Header = () => {
                     </button>
                   </li>
                 ))}
-                {/* New Section for Items */}
-                {items.length > 0 && (
-                  <React.Fragment>
-                    <hr
-                      style={{
-                        margin: "10px 0",
-                        border: "none",
-                        borderTop: "1px solid #f0f0f0",
-                      }}
-                    />
-                    <li
-                      style={{
-                        fontWeight: "bold",
-                        color: "#555",
-                        padding: "5px 10px",
-                      }}
-                    >
-                      آیتم‌ها
-                    </li>
-                    {items.map((item) => {
-                      const restaurant = allRestaurants.find(
-                        (rest) => rest.id === item.restaurant
-                      );
-
-                      return (
-                        <li
-                          key={item.item_id}
-                          style={{
-                            borderBottom: "1px solid #f0f0f0",
-                          }}
-                        >
-                          <button
-                            style={{
-                              width: "100%",
-                              padding: "10px",
-                              cursor: "pointer",
-                              background: "none",
-                              border: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              textAlign: "left",
-                            }}
-                            onClick={() =>
-                              navigate(
-                                `/customer/restaurants/${item.restaurant}/${item.item_id}`
-                              )
-                            }
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                navigate(
-                                  `/customer/restaurants/${item.restaurant}/${item.item_id}`
-                                );
-                              }
-                            }}
-                          >
-                            {item.photo && (
-                              <img
-                                src={`http://127.0.0.1:8000${item.photo}`}
-                                alt={item.name}
-                                style={{
-                                  width: "80px",
-                                  height: "80px",
-                                  borderRadius: "4px",
-                                  marginRight: "10px",
-                                }}
-                              />
-                            )}
-                            <div>
-                              <div
-                                style={{
-                                  fontWeight: "bold",
-                                  marginRight: "10px",
-                                  color: "#555",
-                                }}
-                              >
-                                {item.name}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#555",
-                                  marginRight: "10px",
-                                }}
-                              >
-                                {restaurant.name}
-                              </div>
-                            </div>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </React.Fragment>
-                )}
               </ul>
             </div>
           )}
         </Search>
+
         {!isLoggedIn ? (
           <Button
             variant="contained"
