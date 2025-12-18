@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { getModelRecommendations } from "../services/modelService";
+import { getUserInfo } from "../services/userService"; 
 
 const RecommendedItemCard = ({ item, onClick }) => {
   return (
@@ -72,10 +73,19 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
 
         setIsLoggedIn(true);
 
-        const userId = 1;
-        const n = 10;
+        const userData = await getUserInfo();
+        const realUserId = 100??
+          // userData?.user.id??
+          null;
 
-        const data = await getModelRecommendations(userId, n);
+        if (!realUserId) {
+          setError("شناسه کاربر پیدا نشد.");
+          setProducts([]);
+          return;
+        }
+
+        const n = 10;
+        const data = await getModelRecommendations(realUserId, n);
 
         const mapped = (data || []).slice(0, 10).map((item) => ({
           id: item.item_id,

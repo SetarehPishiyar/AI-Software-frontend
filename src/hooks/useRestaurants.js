@@ -1,34 +1,36 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../utills/publicAxiosInstance";
 
-const useRestaurants = (searchTerm = "", businessType = "all") => {
+const useRestaurants = (
+  searchTerm = "",
+  businessType = "all",
+  city = ""
+) => {
   const [restaurants, setRestaurants] = useState([]);
   const [allRestaurants, setAllRestaurants] = useState([]);
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
+    if (city === null) return;
+
     const fetchRestaurants = async () => {
       if (isMounted) setLoading(true);
 
       try {
-        const params = {};
-        if (searchTerm) params.query = searchTerm;
-        if (businessType && businessType !== "all")
-          params.business_type = businessType;
-
         const response = await axiosInstance.get("/restaurant/profiles", {
           params: {
-            limit: 20,
             ...(searchTerm && { query: searchTerm }),
-            ...(businessType !== "all" && { business_type: businessType }),
+            ...(businessType &&
+              businessType !== "all" && {
+                business_type: businessType,
+              }),
+            ...(city && { city }), 
           },
         });
-
 
         const data = response.data;
 
@@ -56,7 +58,7 @@ const useRestaurants = (searchTerm = "", businessType = "all") => {
     return () => {
       isMounted = false;
     };
-  }, [searchTerm, businessType]);
+  }, [searchTerm, businessType, city]);
 
   return { restaurants, allRestaurants, items, error, loading };
 };

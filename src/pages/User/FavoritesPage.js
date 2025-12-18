@@ -72,7 +72,12 @@ const FavoritesPage = () => {
           pt: 5,
         }}
       >
-        <Grid container spacing={3} justifyContent="center">
+        <Grid
+          container
+          columnSpacing={10}
+          rowSpacing={10}
+          justifyContent="center"
+        >
           {fullFavoritesData.length === 0 ? (
             <Typography
               variant="h6"
@@ -82,7 +87,14 @@ const FavoritesPage = () => {
             </Typography>
           ) : (
             fullFavoritesData.map((restaurant) => (
-              <Grid item xs={6} sm={4} md={2} key={restaurant.id}>
+              <Grid
+                item
+                xs={6}
+                sm={4}
+                md={2}
+                key={restaurant.id}
+                sx={{ display: "flex", justifyContent: "center" }} 
+              >
                 <RestaurantCard
                   restaurant={restaurant}
                   isFavorite={true}

@@ -16,6 +16,7 @@ import { useAuthContext as useAuth } from "../../contexts/AuthContext";
 import { useFoodCart } from "../../contexts/FoodCartContext";
 import { useFetchSingleItem } from "../../hooks/useFetchSingleItem";
 import CommentsList from "../../components/ItemComments";
+import useSingleRestaurant from "../../components/SingleRestaurantFetcher";
 
 const FoodItemPage = () => {
   const navigate = useNavigate();
@@ -24,6 +25,11 @@ const FoodItemPage = () => {
   const { cartItems, addToCart, updateCartItem, fetchCart } = useFoodCart();
 
   const { itemData: foodItem, loading } = useFetchSingleItem(id, item_id);
+  const {
+    restaurant,
+    loading: restaurantLoading,
+    error: restaurantError,
+  } = useSingleRestaurant(id);
   const [comments, setComments] = useState([]);
   const [cartLoaded, setCartLoaded] = useState(false);
 
@@ -112,6 +118,12 @@ const FoodItemPage = () => {
     return spice;
   };
 
+  const restaurantName =
+    restaurant?.name ||
+    restaurant?.restaurant?.name ||
+    restaurant?.data?.name ||
+    "";
+
   return (
     <Grid
       container
@@ -190,6 +202,31 @@ const FoodItemPage = () => {
         <Box display="flex" justifyContent="center" alignItems="center">
           <Typography variant="h6" sx={{ py: 1 }}>
             {foodItem.name}
+          </Typography>
+        </Box>
+
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 1,
+              cursor: restaurantName ? "pointer" : "default",
+              textDecoration: restaurantName ? "underline" : "none",
+              color: "#12372A",
+              fontWeight: "bold",
+            }}
+            onClick={() => {
+              if (!restaurantName) return;
+              navigate(`/customer/restaurants/${id}`);
+            }}
+          >
+            {restaurantLoading
+              ? "در حال دریافت نام رستوران..."
+              : restaurantError
+              ? "خطا در دریافت نام رستوران"
+              : restaurantName
+              ? ` رستوران ${restaurantName}`
+              : " رستوران -"}
           </Typography>
         </Box>
 

@@ -27,26 +27,17 @@ const RestaurantListPage = () => {
   );
 
   const [userCity, setUserCity] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const {
-    restaurants = [],
-    allRestaurants = [],
-    items = [],
-    error,
-    loading,
-  } = useRestaurants(searchTerm, businessType);
-
-  const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
+  const [isLoggedIn] = useState(() => {
+    const accessToken = localStorage.getItem("access");
+    const refreshToken = localStorage.getItem("refresh");
+    return !!accessToken && !!refreshToken;
+  });
 
   useEffect(() => {
     const fetchUserCity = async () => {
       try {
-        const accessToken = localStorage.getItem("access");
-        const refreshToken = localStorage.getItem("refresh");
-        if (!accessToken || !refreshToken) return;
-
-        setIsLoggedIn(true);
+        if (!isLoggedIn) return;
 
         const userData = await getUserInfo();
         if (userData?.province) {
@@ -58,7 +49,20 @@ const RestaurantListPage = () => {
     };
 
     fetchUserCity();
-  }, []);
+  }, [isLoggedIn]);
+
+  const provinceParam = isLoggedIn ? (userCity ? userCity : null) : "";
+  console.log(provinceParam)
+
+  const {
+    restaurants = [],
+    allRestaurants = [],
+    items = [],
+    error,
+    loading,
+  } = useRestaurants(searchTerm, businessType, provinceParam);
+
+  const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
   const handleCategoryClick = (type) => setBusinessType(type);
 
@@ -66,14 +70,8 @@ const RestaurantListPage = () => {
     allRestaurants.find((r) => r.id === restaurantId)?.name || "";
 
   const filteredRestaurants = restaurants.filter((r) => {
-    const cityMatch =
-      isLoggedIn && userCity
-        ? (r.city_name || r.province || "").trim().toLowerCase() ===
-          userCity.toLowerCase()
-        : true;
-
-    if (!searchTerm) return cityMatch;
-    return r.name.toLowerCase().includes(searchTerm.toLowerCase()) && cityMatch;
+    if (!searchTerm) return true;
+    return r.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const filteredItems = !searchTerm

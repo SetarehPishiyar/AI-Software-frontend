@@ -12,6 +12,7 @@ import RestaurantCard from "./RestaurantCard";
 import {
   useRestaurants,
   useRestaurantsLoading,
+  useRestaurantsActions,
 } from "../contexts/RestaurantContext";
 import useFavorites from "../hooks/useFavorites";
 import { getUserInfo } from "../services/userService";
@@ -20,6 +21,7 @@ const ProductSlider = ({ title }) => {
   const navigate = useNavigate();
   const restaurants = useRestaurants();
   const loadingRestaurants = useRestaurantsLoading();
+  const { loadRestaurants } = useRestaurantsActions(); 
 
   const [userCity, setUserCity] = useState("");
   const [loadingUser, setLoadingUser] = useState(true);
@@ -30,7 +32,7 @@ const ProductSlider = ({ title }) => {
     return !!accessToken && !!refreshToken;
   }, []);
 
-    const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
+  const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
   const fetchUserCity = async () => {
     try {
@@ -54,6 +56,16 @@ const ProductSlider = ({ title }) => {
     run();
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      loadRestaurants("");
+      return;
+    }
+    console.log(userCity)
+    if (isLoggedIn && !userCity) return;
+    loadRestaurants(userCity);
+  }, [isLoggedIn, userCity, loadRestaurants]);
+
   const handleToggleFavorite = useCallback(
     (restaurantId) => {
       const accessToken = localStorage.getItem("access");
@@ -72,25 +84,10 @@ const ProductSlider = ({ title }) => {
 
   const filteredRestaurants = useMemo(() => {
     if (!restaurants || restaurants.length === 0) return [];
-
-    if (!isLoggedIn) {
-      return [...restaurants]
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 5);
-    }
-
-    if (userCity) {
-      return [...restaurants]
-        .filter((r) => {
-          const city = (r.city_name || r.province || "").trim().toLowerCase();
-          return city === userCity.toLowerCase();
-        })
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 5);
-    }
-
-    return [];
-  }, [restaurants, userCity, isLoggedIn]);
+    return [...restaurants]
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 5);
+  }, [restaurants]);
 
   const isLoading = loadingRestaurants || loadingUser;
 
