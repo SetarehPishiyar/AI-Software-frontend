@@ -74,8 +74,9 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
         setIsLoggedIn(true);
 
         const userData = await getUserInfo();
-        const realUserId = 100??
-          // userData?.user.id??
+        console.log(userData)
+        const realUserId = 
+          userData?.user.id??
           null;
 
         if (!realUserId) {
