@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Box, TextField, Typography, CircularProgress } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  TextField,
+  Typography,
+  CircularProgress,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+} from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RestaurantCard from "../../components/RestaurantCard";
 import useFavorites from "../../hooks/useFavorites";
@@ -16,6 +25,40 @@ const categories = {
   Mexican: "مکزیکی",
 };
 
+const iranProvinces = [
+  { fa: "آذربایجان شرقی", en: "East Azerbaijan" },
+  { fa: "آذربایجان غربی", en: "West Azerbaijan" },
+  { fa: "اردبیل", en: "Ardabil" },
+  { fa: "اصفهان", en: "Isfahan" },
+  { fa: "البرز", en: "Alborz" },
+  { fa: "ایلام", en: "Ilam" },
+  { fa: "بوشهر", en: "Bushehr" },
+  { fa: "تهران", en: "Tehran" },
+  { fa: "چهارمحال و بختیاری", en: "Chaharmahal and Bakhtiari" },
+  { fa: "خراسان جنوبی", en: "South Khorasan" },
+  { fa: "خراسان شمالی", en: "North Khorasan" },
+  { fa: "خراسان رضوی", en: "Razavi Khorasan" },
+  { fa: "خوزستان", en: "Khuzestan" },
+  { fa: "زنجان", en: "Zanjan" },
+  { fa: "سمنان", en: "Semnan" },
+  { fa: "سیستان و بلوچستان", en: "Sistan and Baluchestan" },
+  { fa: "فارس", en: "Fars" },
+  { fa: "قزوین", en: "Qazvin" },
+  { fa: "قم", en: "Qom" },
+  { fa: "کردستان", en: "Kurdistan" },
+  { fa: "کرمان", en: "Kerman" },
+  { fa: "کرمانشاه", en: "Kermanshah" },
+  { fa: "کهگیلویه و بویراحمد", en: "Kohgiluyeh and Boyer-Ahmad" },
+  { fa: "گلستان", en: "Golestan" },
+  { fa: "گیلان", en: "Gilan" },
+  { fa: "لرستان", en: "Lorestan" },
+  { fa: "مازندران", en: "Mazandaran" },
+  { fa: "مرکزی", en: "Markazi" },
+  { fa: "هرمزگان", en: "Hormozgan" },
+  { fa: "همدان", en: "Hamedan" },
+  { fa: "یزد", en: "Yazd" },
+];
+
 const RestaurantListPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -25,8 +68,8 @@ const RestaurantListPage = () => {
     searchParams.get("business_type") || "all"
   );
 
-  const [userCity, setUserCity] = useState("");
-
+  const [userCity, setUserCity] = useState(""); 
+  const [selectedCity, setSelectedCity] = useState(""); 
   const [isLoggedIn] = useState(() => {
     const accessToken = localStorage.getItem("access");
     const refreshToken = localStorage.getItem("refresh");
@@ -40,7 +83,9 @@ const RestaurantListPage = () => {
 
         const userData = await getUserInfo();
         if (userData?.province) {
-          setUserCity(userData.province.trim());
+          const province = userData.province.trim();
+          setUserCity(province);
+          setSelectedCity(province);
         }
       } catch (err) {
         console.error("خطا در دریافت اطلاعات کاربر:", err);
@@ -50,14 +95,18 @@ const RestaurantListPage = () => {
     fetchUserCity();
   }, [isLoggedIn]);
 
-  const provinceParam = isLoggedIn ? (userCity ? userCity : null) : "";
+const cityParam = useMemo(() => {
+  if (isLoggedIn && !userCity && !selectedCity) return null;
+
+  return selectedCity || "";
+}, [isLoggedIn, userCity, selectedCity]);
+
 
   const {
     restaurants = [],
-    allRestaurants = [],
     error,
     loading,
-  } = useRestaurants(searchTerm, businessType, provinceParam);
+  } = useRestaurants(searchTerm, businessType, cityParam);
 
   const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
@@ -98,8 +147,30 @@ const RestaurantListPage = () => {
           placeholder="جستجوی نام فروشگاه..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: "80%", marginBottom: 3 }}
+          sx={{ width: "80%", marginBottom: 2 }}
         />
+      </Box>
+
+      {/* City Filter */}
+      <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+        <FormControl sx={{ width: "80%" }} size="small">
+          <InputLabel id="province-select-label">استان</InputLabel>
+          <Select
+            labelId="province-select-label"
+            value={selectedCity}
+            label="استان"
+            onChange={(e) => setSelectedCity(e.target.value)}
+            displayEmpty
+          >
+            {!isLoggedIn && <MenuItem value="">همه استان‌ها</MenuItem>}
+
+            {iranProvinces.map((p) => (
+              <MenuItem key={p.en} value={p.fa}>
+                {p.fa}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Categories */}

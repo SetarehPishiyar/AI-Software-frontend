@@ -28,7 +28,7 @@ const FavoritesPage = () => {
     <Box sx={{ minHeight: "100vh", bgcolor: "#12372A", padding: 0 }}>
       {/* AppBar */}
       <AppBar position="static" elevation={0} sx={{ bgcolor: "#12372A" }}>
-        <Toolbar sx={{ display: "flex", alignItems: "center" }}>
+        <Toolbar sx={{ display: "flex", alignItems: "center" , height:"80px"}}>
           <IconButton
             onClick={() => navigate(-1)}
             sx={{
@@ -46,13 +46,13 @@ const FavoritesPage = () => {
           </IconButton>
 
           <Typography
-            variant="h6"
+            variant="h5"
             sx={{
               flex: 1,
               textAlign: "center",
               color: "#FBFADA",
               fontWeight: "bold",
-              fontSize: "1.1rem",
+              fontSize: "1.8rem",
               userSelect: "none",
             }}
           >
@@ -70,13 +70,14 @@ const FavoritesPage = () => {
           minHeight: "calc(100vh - 64px)",
           px: 4,
           pt: 5,
+          paddingInline: 10
         }}
       >
         <Grid
           container
-          columnSpacing={10}
-          rowSpacing={10}
-          justifyContent="center"
+          columnSpacing={5}
+          rowSpacing={5}
+          justifyContent="left"
         >
           {fullFavoritesData.length === 0 ? (
             <Typography
@@ -89,9 +90,10 @@ const FavoritesPage = () => {
             fullFavoritesData.map((restaurant) => (
               <Grid
                 item
-                xs={6}
-                sm={4}
-                md={2}
+                xs={7}
+                sm={6}
+                md={4}
+                lg={3}
                 key={restaurant.id}
                 sx={{ display: "flex", justifyContent: "center" }} 
               >
