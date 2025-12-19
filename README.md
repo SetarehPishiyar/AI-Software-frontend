@@ -1,6 +1,6 @@
 # AI-Based Food Recommendation System — Frontend
 
-| ![Home Page](./demo/1.png) | Home page of the application |
+| ![Home Page](./Demo/1.png) | Home page of the application |
 
 This repository contains the **Frontend** of an AI-powered food recommendation system inspired by online food delivery platforms such as **Snappfood**.  
 The system aims to provide users with a smart, personalized food selection experience by integrating a modern frontend interface with a backend service and an AI-based recommendation engine.
@@ -171,16 +171,21 @@ npm start
 
 ## Demo Screenshots
 
-All demo images are available in the `demo` folder of this repository.
+All demo images are available in the `Demo` folder of this repository.
 
 | Screenshot | Description |
 |----------|-------------|
-| ![Home Page](./demo/1.png) | Home page of the application |
-| ![Recommendations](./demo/4.png) | AI-generated food recommendations |
-| ![Filters](./demo/2.png) | User preferences and filtering |
-| ![Details](./demo/5.png) | Detailed view of a recommended item |
+| ![Home Page](./Demo/1.png) | Home page of the application |
+| ![Filters](./Demo/2.png) | User preferences and filtering |
+| ![Restaurants list](./Demo/3.png) | Home page of the application |
+| ![Recommendations](./Demo/4.png) | AI-generated food recommendations |
+| ![Details](./Demo/5.png) | Detailes and contact us |
+| ![Restarant page](./Demo/9.png) | Restaurant page for user |
+| ![Track order](./Demo/12.png) | Track order page for user |
+| ![Profile](./Demo/6.png) | Profile page for user |
+| ![Edit Menu](./Demo/15.png) | Edit Menu page for Restaurant |
 
-> If image names are different, update the paths accordingly.
+> See Other pages in the `Demo` Folder.
 
 ---
 
