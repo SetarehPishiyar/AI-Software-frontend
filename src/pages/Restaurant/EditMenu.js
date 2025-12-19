@@ -91,6 +91,8 @@ const EditMenu = () => {
         photo: response.data.photo,
         discount: response.data.discount,
         score: response.data.score,
+        state: response.data.state,
+        spice: response.data.spice
       });
       setIsAddingNew(false);
       setState(response.data.state || "available");
@@ -129,7 +131,7 @@ const EditMenu = () => {
   };
 
   const handleSave = async () => {
-    if (!editingFood.name || !editingFood.price || !editingFood.description) {
+    if (!editingFood.name || !editingFood.price) {
       alert("لطفاً همه فیلدهای ضروری را پر کنید.");
       return;
     }
@@ -140,8 +142,8 @@ const EditMenu = () => {
     formData.append("name", editingFood.name);
     formData.append("description", editingFood.description);
     formData.append("discount", editingFood.discount.toString() || "0");
-    formData.append("state", "available");
-    formData.append("score", 0);
+    formData.append("state", state);
+    formData.append("score", editingFood.score);
     formData.append("spice", spice);
 
     if (editingFood.imageFile) {
@@ -266,7 +268,7 @@ const EditMenu = () => {
             />
             <TextField
               fullWidth
-              label="قیمت (به تومان)"
+              label="قیمت (به هزار تومان)"
               value={parseInt(editingFood.price)}
               type="number"
               onChange={(e) => handleEditChange("price", e.target.value)}
@@ -402,7 +404,7 @@ const EditMenu = () => {
                       variant="body1"
                       sx={{ paddingTop: 1, pointerEvents: "none" }}
                     >
-                      {parseInt(food.price)} تومان
+                      {parseInt(food.price)} هزار تومان
                     </Typography>
                     <Typography
                       variant="body2"

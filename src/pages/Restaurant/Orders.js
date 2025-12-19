@@ -205,7 +205,7 @@ const OrderList = () => {
                     textAlign: "center",
                   }}
                 >
-                  {Math.floor(order.total_price).toLocaleString()} تومان
+                  {Math.floor(order.total_price).toLocaleString()} هزار تومان
                 </Typography>
               </AccordionSummary>
 

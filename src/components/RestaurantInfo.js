@@ -60,7 +60,7 @@ const RestaurantInfo = ({
           label={
             parsedDeliveryCost === 0
               ? "رایگان"
-              : `${parsedDeliveryCost.toLocaleString()} تومان`
+              : `${parsedDeliveryCost.toLocaleString()} هزار تومان`
           }
         />
       </Box>

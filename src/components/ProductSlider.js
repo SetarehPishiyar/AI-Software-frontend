@@ -1,18 +1,37 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Grid, IconButton } from "@mui/material";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  Box,
+  Typography,
+  Grid,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import RestaurantCard from "./RestaurantCard";
-import { useRestaurants } from "../contexts/RestaurantContext";
+import {
+  useRestaurants,
+  useRestaurantsLoading,
+  useRestaurantsActions,
+} from "../contexts/RestaurantContext";
 import useFavorites from "../hooks/useFavorites";
 import { getUserInfo } from "../services/userService";
 
 const ProductSlider = ({ title }) => {
   const navigate = useNavigate();
   const restaurants = useRestaurants();
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const loadingRestaurants = useRestaurantsLoading();
+  const { loadRestaurants } = useRestaurantsActions(); 
+
   const [userCity, setUserCity] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  const isLoggedIn = useMemo(() => {
+    const accessToken = localStorage.getItem("access");
+    const refreshToken = localStorage.getItem("refresh");
+    return !!accessToken && !!refreshToken;
+  }, []);
+
   const { favorites, toggleFavorite } = useFavorites(isLoggedIn);
 
   const fetchUserCity = async () => {
@@ -21,42 +40,56 @@ const ProductSlider = ({ title }) => {
       const refreshToken = localStorage.getItem("refresh");
       if (!accessToken || !refreshToken) return;
 
-      setIsLoggedIn(true);
-
       const userData = await getUserInfo();
-      if (userData?.province) {
-        setUserCity(userData.province.trim());
-      }
+      if (userData?.province) setUserCity(userData.province.trim());
     } catch (err) {
       console.error("خطا در دریافت اطلاعات کاربر:", err);
     }
   };
 
   useEffect(() => {
-    fetchUserCity();
+    const run = async () => {
+      setLoadingUser(true);
+      await fetchUserCity();
+      setLoadingUser(false);
+    };
+    run();
   }, []);
 
   useEffect(() => {
     if (!isLoggedIn) {
-      // اگر کاربر لاگین نیست، همه رستوران‌ها را نمایش بده
-      setFilteredRestaurants(
-        restaurants.sort((a, b) => (b.score || 0) - (a.score || 0))
-      );
+      loadRestaurants("");
       return;
     }
+    console.log(userCity)
+    if (isLoggedIn && !userCity) return;
+    loadRestaurants(userCity);
+  }, [isLoggedIn, userCity, loadRestaurants]);
 
-    if (userCity && Array.isArray(restaurants)) {
-      const filtered = restaurants
-        .filter((r) => {
-          const restaurantCity = r.city_name || r.province || "";
-          return restaurantCity.trim().toLowerCase() === userCity.toLowerCase();
-        })
-        .sort((a, b) => (b.score || 0) - (a.score || 0));
-      setFilteredRestaurants(filtered);
-    } else {
-      setFilteredRestaurants([]);
-    }
-  }, [userCity, restaurants, isLoggedIn]);
+  const handleToggleFavorite = useCallback(
+    (restaurantId) => {
+      const accessToken = localStorage.getItem("access");
+      const refreshToken = localStorage.getItem("refresh");
+
+      if (!accessToken || !refreshToken) {
+        alert("برای افزودن به علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید");
+        navigate("/login");
+        return;
+      }
+
+      toggleFavorite(restaurantId);
+    },
+    [toggleFavorite, navigate]
+  );
+
+  const filteredRestaurants = useMemo(() => {
+    if (!restaurants || restaurants.length === 0) return [];
+    return [...restaurants]
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 5);
+  }, [restaurants]);
+
+  const isLoading = loadingRestaurants || loadingUser;
 
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
@@ -84,19 +117,32 @@ const ProductSlider = ({ title }) => {
         }}
       >
         <Grid container spacing={1} sx={{ flex: 1 }}>
-          {filteredRestaurants.length > 0 ? (
-            filteredRestaurants
-              .slice(0, 6)
-              .map((r) => (
-                <RestaurantCard
-                  key={r.id}
-                  restaurant={r}
-                  isFavorite={favorites[r.id]}
-                  toggleFavorite={toggleFavorite}
-                  onClick={() => navigate(`/customer/restaurants/${r.id}`)}
-                  showDetails={true}
-                />
-              ))
+          {isLoading ? (
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <CircularProgress color="inherit" />
+              <Typography variant="body1" sx={{ ml: 2, color: "#FBFADA" }}>
+                در حال بارگذاری رستوران‌ها...
+              </Typography>
+            </Box>
+          ) : filteredRestaurants.length > 0 ? (
+            filteredRestaurants.map((r) => (
+              <RestaurantCard
+                key={r.id}
+                restaurant={r}
+                isFavorite={favorites[r.id]}
+                toggleFavorite={() => handleToggleFavorite(r.id)}
+                onClick={() => navigate(`/customer/restaurants/${r.id}`)}
+                showDetails={true}
+              />
+            ))
           ) : (
             <Typography variant="body1" color="#FBFADA">
               رستورانی در شهر شما موجود نیست.

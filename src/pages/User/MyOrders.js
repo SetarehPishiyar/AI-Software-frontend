@@ -51,9 +51,7 @@ const MyOrders = () => {
 
   const userId = user?.user?.id;
   const { orders, reviewsMap } = useOrders(userId);
-
-
-  console.log(useOrders(userId))
+  console.log(orders, reviewsMap);
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -164,7 +162,7 @@ const MyOrders = () => {
                   sx={{ mt: 2, fontWeight: "bold", color: "#12372A" }}
                 >
                   قیمت کل: {Math.floor(order.total_price).toLocaleString()}{" "}
-                  تومان
+                  هزار تومان
                 </Typography>
               </CardContent>
 

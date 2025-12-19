@@ -1,19 +1,22 @@
-// src/services/restaurantService.js
 import publicAxiosInstance from "../utills/publicAxiosInstance";
-import axiosInstance from "../utills/axiosInstance"; // برای protected APIs
+import axiosInstance from "../utills/axiosInstance"; 
 
-export const getRestaurants = async () => {
+export const getRestaurants = async (city_name) => {
   try {
-    const response = await publicAxiosInstance.get("/restaurant/profiles");
-    const sorted = response.data.restaurants.sort((a, b) => b.score - a.score);
-    return sorted;
+    const params = city_name ? { city_name } : {};
+    console.log("params  " ,params)
+
+    const response = await publicAxiosInstance.get("/restaurant/profiles", {
+      params,
+    });
+
+    return response.data;
   } catch (err) {
     console.error(err);
     return [];
   }
 };
 
-// جدید: گرفتن پروفایل رستوران جاری (Protected)
 export const getRestaurantProfile = async () => {
   try {
     const response = await axiosInstance.get("/restaurant/profiles/me");

@@ -21,7 +21,6 @@ const HomePage = () => {
   const { user } = useUser();
 
   useEffect(() => {
-    // اگر کاربر رستوران لاگین کرده بود، مستقیم به پروفایلش بره
     const resID = localStorage.getItem("res_id");
     if (resID && resID !== "undefined") {
       navigate(`/restaurant/${resID}/profile`);
@@ -54,7 +53,7 @@ const HomePage = () => {
       </Box>
 
       <Box component="section" sx={{ width: "100%" }}>
-        <ProductSlider title="پیشنهاد شده به شما" />
+        <RecommendedProductSlider title="پیشنهاد شده به شما" />
       </Box>
 
       <Box component="section" sx={{ width: "100%" }}>

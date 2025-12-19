@@ -48,17 +48,6 @@ const CartsList = () => {
       const response = await axiosInstance.get("/customer/carts");
       const carts = response.data;
 
-      for (const cart of carts) {
-        if (!cart.cart_items || cart.cart_items.length === 0) {
-          try {
-            await axiosInstance.delete(`/customer/carts/${cart.id}`);
-            console.log(`سبد خرید با id ${cart.id} حذف شد چون خالی بود.`);
-          } catch (err) {
-            console.error(`خطا در حذف سبد خالی ${cart.id}:`, err);
-          }
-        }
-      }
-
       const updatedCarts = await Promise.all(
         carts.map(async (cart) => {
           try {
@@ -80,8 +69,7 @@ const CartsList = () => {
           }
         })
       );
-
-      setCartItems(updatedCarts.filter((cart) => cart.cart_items?.length > 0));
+      setCartItems(updatedCarts);
     } catch (error) {
       console.error("خطا در دریافت اطلاعات سبد خرید:", error);
     }

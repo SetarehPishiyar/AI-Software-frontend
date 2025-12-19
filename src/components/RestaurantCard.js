@@ -65,7 +65,7 @@ const RestaurantCard = ({
             </Typography>
             <Typography variant="body2" color="text.secondary">
               هزینه ارسال: {Math.floor(parseFloat(restaurant.delivery_price))}{" "}
-              تومان
+              هزار تومان
             </Typography>
           </>
         )}

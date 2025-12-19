@@ -314,7 +314,7 @@ const EditProfile = () => {
             label="استان"
           >
             {iranProvinces.map((p) => (
-              <MenuItem key={p.en} value={p.en}>
+              <MenuItem key={p.fa} value={p.fa}>
                 {p.fa}
               </MenuItem>
             ))}
@@ -514,7 +514,7 @@ const EditProfile = () => {
         <TextField
           InputProps={{ sx: { color: "white" } }}
           value={Math.floor(deliveryCost)}
-          placeholder="هزینه پیک (به تومان)"
+          placeholder="هزینه پیک (به هزار تومان)"
           variant="outlined"
           fullWidth
           style={{
