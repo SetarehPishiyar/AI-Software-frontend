@@ -1,18 +1,59 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  CircularProgress,
+  Chip,
+} from "@mui/material";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+
 import { getModelRecommendations } from "../services/modelService";
-import { getUserInfo } from "../services/userService"; 
+import { getUserInfo } from "../services/userService";
+
+import publicAxiosInstance from "../utills/publicAxiosInstance";
+import { PLACEHOLDER_IMG } from "../utills/constants";
+
+const mapSpiceFa = (spice) => {
+  if (!spice) return null;
+  const s = String(spice).trim().toLowerCase();
+
+  if (["hot"].includes(s)) return "زیاد";
+  if (["mild"].includes(s)) return "متوسط";
+  if (["no"].includes(s)) return "کم";
+
+  return spice;
+};
+
+const mapAvailabilityFa = (state) => {
+  if (!state) return "-";
+  const s = String(state).trim().toLowerCase();
+
+  if (["available"].includes(s)) return "موجود";
+  if (["unavailable"].includes(s)) return "ناموجود";
+
+  return state;
+};
 
 const RecommendedItemCard = ({ item, onClick }) => {
+  const finalPrice =
+    item?.price && item?.discount
+      ? (Number(item.price) * (100 - Number(item.discount))) / 100
+      : item?.price
+      ? Number(item.price)
+      : null;
+
+  const spiceFa = mapSpiceFa(item?.spice);
+  const availabilityFa = mapAvailabilityFa(item?.state);
+
   return (
     <Box
       onClick={onClick}
       sx={{
         minWidth: 230,
         maxWidth: 230,
-        height: 300,
+        height: 340,
         borderRadius: 5,
         backgroundColor: "#FBFADA",
         color: "#12372A",
@@ -21,30 +62,102 @@ const RecommendedItemCard = ({ item, onClick }) => {
         boxShadow: 2,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        overflow: "hidden",
         "&:hover": { transform: "scale(1.02)" },
         transition: "transform 0.15s ease",
       }}
     >
-      <Box>
-        <Typography sx={{ fontWeight: "bold", mb: 1 }}>{item.name}</Typography>
-
-        <Typography variant="body2" sx={{ opacity: 0.85 }}>
-          مدل: {item.state ?? "-"}
-        </Typography>
-
-        <Typography variant="body2" sx={{ opacity: 0.85, mt: 0.5 }}>
-          امتیاز: {typeof item.score === "number" ? item.score.toFixed(4) : "-"}
-        </Typography>
+      <Box
+        sx={{
+          width: "100%",
+          height: 165,
+          borderRadius: 3,
+          overflow: "hidden",
+          mb: 1.2,
+          backgroundColor: "rgba(0,0,0,0.05)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <img
+          src={item.photo || PLACEHOLDER_IMG}
+          alt={item.name}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          loading="lazy"
+        />
       </Box>
 
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          {item.price ? `${item.price.toLocaleString()} تومان` : "قیمت نامشخص"}
-        </Typography>
+      <Typography sx={{ fontWeight: "bold", mb: 1 }} noWrap>
+        {item.name ?? "-"}
+      </Typography>
+
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8, mb: 1 }}>
+        <Chip
+          size="small"
+          label={`وضعیت: ${availabilityFa}`}
+          sx={{ backgroundColor: "rgba(18,55,42,0.08)", color: "#12372A" }}
+        />
+
+        {item.discount ? (
+          <Chip
+            size="small"
+            label={`تخفیف: ${item.discount}%`}
+            sx={{ backgroundColor: "rgba(255,0,0,0.08)", color: "#8b0000" }}
+          />
+        ) : null}
+      </Box>
+
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8, mb: 1, flex: 1 }}>
+        {spiceFa && (
+          <Chip
+            size="small"
+            label={`تندی: ${spiceFa}`}
+            sx={{ backgroundColor: "rgba(18,55,42,0.08)", color: "#12372A" }}
+          />
+        )}
+
+        {typeof item.score === "number" && (
+          <Chip
+            size="small"
+            label={`امتیاز: ${item.score.toFixed(2)}`}
+            sx={{ backgroundColor: "rgba(18,55,42,0.08)", color: "#12372A" }}
+          />
+        )}
+      </Box>
+
+      <Box>
+        {finalPrice != null ? (
+          <>
+            {item.discount ? (
+              <Typography
+                variant="caption"
+                sx={{ textDecoration: "line-through", opacity: 0.7 }}
+              >
+                {Number(item.price).toLocaleString()} هزار تومان
+              </Typography>
+            ) : null}
+            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+              {finalPrice.toLocaleString()} هزار تومان
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+            قیمت نامشخص
+          </Typography>
+        )}
       </Box>
     </Box>
   );
+};
+
+const fetchSingleItem = async (restaurantId, itemId) => {
+  const res = await publicAxiosInstance.get(
+    `/customer/restaurants/${restaurantId}/items/${itemId}`
+  );
+  const data = res.data;
+  if (!data?.photo) data.photo = PLACEHOLDER_IMG;
+  return data;
 };
 
 const RecommendedProductSlider = ({ title = "محصولات پیشنهادی برای شما" }) => {
@@ -57,6 +170,8 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchRecommended = async () => {
       setLoading(true);
       setError("");
@@ -66,38 +181,68 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
         const refreshToken = localStorage.getItem("refresh");
 
         if (!accessToken || !refreshToken) {
+          if (!isMounted) return;
           setIsLoggedIn(false);
           setProducts([]);
           return;
         }
 
+        if (!isMounted) return;
         setIsLoggedIn(true);
 
         const userData = await getUserInfo();
-        console.log(userData)
-        const realUserId = 
-          userData?.user.id??
-          null;
+        const realUserId = userData?.user?.id ?? null;
 
         if (!realUserId) {
+          if (!isMounted) return;
           setError("شناسه کاربر پیدا نشد.");
           setProducts([]);
           return;
         }
 
         const n = 10;
-        const data = await getModelRecommendations(realUserId, n);
+        const recs = await getModelRecommendations(realUserId, n);
 
-        const mapped = (data || []).slice(0, 10).map((item) => ({
-          id: item.item_id,
-          name: `Item #${item.item_id}`,
-          image: "",
-          price: null,
-          state: item.item_id_model,
-          score: item.score,
-        }));
+        const recArray = Array.isArray(recs) ? recs : recs?.results || [];
+        const top = recArray.slice(0, n);
 
-        setProducts(mapped);
+        const detailed = await Promise.all(
+          top.map(async (rec) => {
+            try {
+              const restaurantId =
+                rec.restaurant_id ?? rec.restaurant ?? rec.res_id;
+              const itemId = rec.item_id ?? rec.item ?? rec.itemId;
+
+              const item = await fetchSingleItem(restaurantId, itemId);
+
+              return {
+                ...item,
+                restaurantId: item.restaurant ?? restaurantId,
+                id: item.item_id ?? itemId,
+              };
+            } catch (e) {
+              const restaurantId = rec.restaurant_id ?? rec.restaurant ?? null;
+              const itemId = rec.item_id ?? rec.item ?? null;
+
+              return {
+                id: itemId,
+                item_id: itemId,
+                restaurantId,
+                restaurant: restaurantId,
+                name: `Item #${itemId}`,
+                photo: PLACEHOLDER_IMG,
+                price: null,
+                discount: null,
+                state: rec.state ?? "unavailable",
+                spice: null,
+                score: null,
+              };
+            }
+          })
+        );
+
+        if (!isMounted) return;
+        setProducts(detailed);
       } catch (e) {
         const msg =
           e?.response?.data?.detail ||
@@ -105,14 +250,20 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
           e?.message ||
           "خطا در دریافت پیشنهادها";
 
+        if (!isMounted) return;
         setError(msg);
         setProducts([]);
       } finally {
+        if (!isMounted) return;
         setLoading(false);
       }
     };
 
     fetchRecommended();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const scrollRail = (dir = "right") => {
@@ -137,6 +288,7 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
         color,
         textAlign: "center",
         px: 2,
+        gap: 2,
       }}
     >
       {children}
@@ -148,9 +300,7 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
       return (
         <CenterMessage>
           <CircularProgress color="inherit" />
-          <Typography variant="body1" sx={{ ml: 2 }}>
-            در حال بارگذاری پیشنهادها...
-          </Typography>
+          <Typography variant="body1">در حال بارگذاری پیشنهادها...</Typography>
         </CenterMessage>
       );
     }
@@ -191,10 +341,7 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
             backgroundColor: "#FBFADA",
             width: 44,
             height: 44,
-            "&:hover": {
-              backgroundColor: "#cfe3c5",
-              transform: "scale(1.15)",
-            },
+            "&:hover": { backgroundColor: "#cfe3c5", transform: "scale(1.15)" },
           }}
         >
           <ArrowForwardIos sx={{ color: "#12372A", rotate: "180deg" }} />
@@ -219,9 +366,11 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
         >
           {products.map((p) => (
             <RecommendedItemCard
-              key={p.id}
+              key={`${p.restaurantId}-${p.item_id}`}
               item={p}
-              onClick={() => navigate(`/customer/restaurants/resid/${p.id}`)}
+              onClick={() =>
+                navigate(`/customer/restaurants/${p.restaurantId}/${p.item_id}`)
+              }
             />
           ))}
         </Box>
@@ -232,10 +381,7 @@ const RecommendedProductSlider = ({ title = "محصولات پیشنهادی ب�
             backgroundColor: "#FBFADA",
             width: 44,
             height: 44,
-            "&:hover": {
-              backgroundColor: "#cfe3c5",
-              transform: "scale(1.15)",
-            },
+            "&:hover": { backgroundColor: "#cfe3c5", transform: "scale(1.15)" },
           }}
         >
           <ArrowForwardIos sx={{ color: "#12372A" }} />

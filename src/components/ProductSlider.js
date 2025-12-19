@@ -61,7 +61,6 @@ const ProductSlider = ({ title }) => {
       loadRestaurants("");
       return;
     }
-    console.log(userCity)
     if (isLoggedIn && !userCity) return;
     loadRestaurants(userCity);
   }, [isLoggedIn, userCity, loadRestaurants]);

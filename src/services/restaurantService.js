@@ -4,7 +4,6 @@ import axiosInstance from "../utills/axiosInstance";
 export const getRestaurants = async (city_name) => {
   try {
     const params = city_name ? { city_name } : {};
-    console.log("params  " ,params)
 
     const response = await publicAxiosInstance.get("/restaurant/profiles", {
       params,

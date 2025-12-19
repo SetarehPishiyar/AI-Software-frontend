@@ -16,7 +16,6 @@ export function RestaurantProvider({ children }) {
   const loadRestaurants = useCallback(async (city_name = "") => {
     setLoading(true);
     try {
-      console.log("context   ",city_name )
       const data = await getRestaurants(city_name);
       setRestaurants(Array.isArray(data) ? data : []);
     } catch (err) {

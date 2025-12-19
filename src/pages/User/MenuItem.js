@@ -30,21 +30,30 @@ const FoodItemPage = () => {
     loading: restaurantLoading,
     error: restaurantError,
   } = useSingleRestaurant(id);
-  const [comments, setComments] = useState([]);
+
   const [cartLoaded, setCartLoaded] = useState(false);
 
   const isAvailable = foodItem?.state?.toLowerCase() === "available";
 
   useEffect(() => {
+    let mounted = true;
+
     const loadCart = async () => {
-      if (isLoggedIn) {
-        await fetchCart(id);
+      try {
+        if (isLoggedIn) {
+          await fetchCart(id);
+        }
+      } finally {
+        if (mounted) setCartLoaded(true);
       }
-      setCartLoaded(true);
     };
+
     loadCart();
-    fetchItemComments();
-  }, [id, item_id, isLoggedIn]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [id, isLoggedIn, fetchCart]);
 
   useEffect(() => {
     if (!foodItem || !cartLoaded) return;
@@ -56,33 +65,6 @@ const FoodItemPage = () => {
       }
     }
   }, [cartItems, foodItem, cartLoaded, isAvailable, item_id, updateCartItem]);
-
-  const fetchItemComments = async () => {
-    try {
-      const response = await fetch(`/customer/items/${item_id}/reviews/`);
-      if (!response.ok) {
-        setComments([]);
-        return;
-      }
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        setComments([]);
-        return;
-      }
-      const res = await response.json();
-      const reviews = res.map((review) => ({
-        id: review.id,
-        name: `${review.first_name} ${review.last_name}`,
-        date: new Date(review.created_at).toLocaleDateString("fa-IR"),
-        rating: review.score,
-        comment: review.description,
-      }));
-      setComments(reviews);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-      setComments([]);
-    }
-  };
 
   if (loading) return <Typography>در حال بارگذاری...</Typography>;
   if (!foodItem) return <Typography>آیتم پیدا نشد.</Typography>;
