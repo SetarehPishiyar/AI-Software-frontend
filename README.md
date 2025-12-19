@@ -1,70 +1,205 @@
-# Getting Started with Create React App
+# AI-Based Food Recommendation System — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+| ![Home Page](./demo/1.png) | Home page of the application |
 
-## Available Scripts
+This repository contains the **Frontend** of an AI-powered food recommendation system inspired by online food delivery platforms such as **Snappfood**.  
+The system aims to provide users with a smart, personalized food selection experience by integrating a modern frontend interface with a backend service and an AI-based recommendation engine.
 
-In the project directory, you can run:
+⚠️ **Important:**  
+This repository includes **only the frontend** of the system.  
+To run the complete project, you must also clone and run the **Backend** and **AI (Recommender Engine)** repositories.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## System Description
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The AI-Based Food Recommendation System is designed to help users choose food more efficiently by analyzing preferences and generating intelligent recommendations.  
+The frontend serves as the main interaction layer where users explore options, apply filters, and view AI-generated food suggestions in an intuitive and user-friendly interface.
 
-### `npm test`
+The system is built using a **microservice-style architecture** with three separate repositories that work together.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Project Architecture
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The complete system consists of three independent repositories:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1️⃣ Frontend (This Repository)
+- **Repository:** https://github.com/SetarehPishiyar/AI-Software-frontend
+- **Technology:** React (Create React App)
+- **Responsibility:**
+  - User interface  
+  - User interaction and visualization  
+  - Displaying AI-based recommendations
+- - **Deployment:** Dockerized using a Dockerfile
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2️⃣ Backend
+- **Repository:** https://github.com/mehdizhd11/AI-Snappfood
+- **Responsibility:**
+  - API development  
+  - Business logic  
+  - Data management  
+  - Communication with AI service
 
-### `npm run eject`
+### 3️⃣ AI / Recommender Engine
+- **Repository:** https://github.com/MobinaShahbazi/Food-Recommender-Engine
+- **Responsibility:**
+  - Machine learning–based food recommendation  
+  - Generating personalized suggestions based on user data
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Prerequisites
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+To run this project, you need:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Git
+- Docker (recommended)
+- Node.js & npm (optional, for local development without Docker)
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Installation & Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Step 1: Clone All Repositories
 
-### Code Splitting
+It is recommended to clone all three repositories into a single parent directory:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+mkdir ai-food-recommendation
+cd ai-food-recommendation
 
-### Analyzing the Bundle Size
+# Frontend
+git clone https://github.com/SetarehPishiyar/AI-Software-frontend.git
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Backend
+git clone https://github.com/mehdizhd11/AI-Snappfood.git
 
-### Making a Progressive Web App
+# AI Engine
+git clone https://github.com/MobinaShahbazi/Food-Recommender-Engine.git
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+### Step 2: Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The frontend communicates with backend and AI services via environment variables.
 
-### Deployment
+Example `.env` file:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```env
+REACT_APP_API_BASE_URL=http://localhost:8000
+REACT_APP_AI_BASE_URL=http://localhost:5000
+```
 
-### `npm run build` fails to minify
+Update these values based on how your backend and AI services are configured.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+### Step 3: Run Frontend Using Docker
+
+> 🔁 **Reverse Proxy with Nginx**  
+In the final deployment setup, the frontend is served behind an **Nginx reverse proxy**.  
+Nginx is responsible for:
+- Serving the React build files
+- Acting as a reverse proxy between the frontend, backend, and AI services
+- Handling routing and request forwarding to the appropriate services
+
+This setup improves performance, scalability, and separation of concerns.
+
+If you are using a production-like environment, Nginx should be configured to forward requests based on route prefixes:
+- Requests starting with `/api` are proxied to the **Backend service**
+- Requests starting with `/model` are proxied to the **AI (Recommender Engine)**
+
+This clear separation of routes allows the frontend to communicate with both services through a single Nginx entry point.
+
+### Step 3: Run Frontend Using Docker
+
+```bash
+cd AI-Software-frontend
+docker build -t ai-food-frontend .
+docker run -p 3000:3000 ai-food-frontend
+```
+
+The frontend will be available at:
+
+```
+http://localhost:3000
+```
+
+⚠️ Make sure that the **Backend** and **AI Engine** are running for full functionality.
+
+---
+
+## Run Frontend Locally (Without Docker)
+
+For development purposes:
+
+```bash
+cd AI-Software-frontend
+npm install
+npm start
+```
+
+---
+
+## Frontend Features
+
+### User Interface
+- Modern and clean React-based UI
+- Responsive design for different screen sizes
+- Component-based and modular structure
+
+### Core Functionalities
+- User interaction for selecting food preferences
+- Displaying AI-generated food recommendations
+- Filtering and preference-based recommendation flow
+- Integration with backend APIs
+- Loading and error handling states
+
+### Recommendation Experience
+- Personalized food suggestions based on user input
+- Detailed view of recommended food items
+- Dynamic updates based on user preferences
+
+### Technical Highlights
+- Scalable React project structure
+- Environment-based API configuration
+- Dockerized frontend for easy deployment
+
+---
+
+## Demo Screenshots
+
+All demo images are available in the `demo` folder of this repository.
+
+| Screenshot | Description |
+|----------|-------------|
+| ![Home Page](./demo/1.png) | Home page of the application |
+| ![Recommendations](./demo/4.png) | AI-generated food recommendations |
+| ![Filters](./demo/2.png) | User preferences and filtering |
+| ![Details](./demo/5.png) | Detailed view of a recommended item |
+
+> If image names are different, update the paths accordingly.
+
+---
+
+## Project Structure
+
+```
+AI-Software-frontend/
+│── public/
+│── src/
+│── demo/
+│── Dockerfile
+│── package.json
+│── README.md
+```
+
+---
+
+## Contribution
+
+Contributions are welcome.  
+Feel free to open an issue or submit a pull request for improvements or bug fixes.
+
