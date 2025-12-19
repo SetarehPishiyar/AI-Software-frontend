@@ -50,8 +50,9 @@ const MyOrders = () => {
   }, [navigate]);
 
   const userId = user?.user?.id;
+
+  // ✅ useOrders بیرون از useEffect
   const { orders, reviewsMap } = useOrders(userId);
-  console.log(orders, reviewsMap);
 
   const handleCollapseToggle = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -102,7 +103,7 @@ const MyOrders = () => {
 
       {/* ORDERS LIST */}
       <Grid container justifyContent="center" mt={4} spacing={2}>
-        {orders.length === 0 ? (
+        {!orders || orders.length === 0 ? (
           <Typography
             sx={{
               mt: 6,
@@ -114,77 +115,109 @@ const MyOrders = () => {
             لیست سفارش‌های شما خالی است.
           </Typography>
         ) : (
-          orders.map((order, index) => (
-            <Card
-              key={order.id}
-              sx={{
-                width: { xs: "92%", sm: "80%", md: "85%" },
-                bgcolor: "#e8e9d6",
-                borderRadius: 2,
-                boxShadow: 3,
-                p: 2,
-              }}
-            >
-              {/* CARD CONTENT */}
-              <CardContent>
-                <Typography
-                  sx={{
-                    fontSize: "1.1rem",
-                    fontWeight: "bold",
-                    color: "#12372A",
-                  }}
-                >
-                  سفارش شماره {order.order_id}
-                </Typography>
-                <Typography
-                  sx={{ mt: 1, fontWeight: "bold", color: "#12372A" }}
-                >
-                  {order.restaurant_name}
-                </Typography>
-                <Typography sx={{ mt: 1, color: "#333" }}>
-                  {order.description}
-                </Typography>
-                <Typography sx={{ mt: 2, color: "#555" }}>
-                  تاریخ سفارش:{" "}
-                  {moment(order.order_date).format("jYYYY/jMM/jDD")} -{" "}
-                  {moment(order.order_date).format("HH:mm")}
-                </Typography>
-                <Typography sx={{ mt: 1, color: "#555" }}>
-                  آدرس: {order.address}
-                </Typography>
-                <Typography sx={{ mt: 1, color: "#555" }}>
-                  روش ارسال: {deliveryMethodMap[order.delivery_method]}
-                </Typography>
-                <Typography sx={{ mt: 1, color: "#555" }}>
-                  روش پرداخت: {paymentMethodMap[order.payment_method]}
-                </Typography>
-                <Typography
-                  sx={{ mt: 2, fontWeight: "bold", color: "#12372A" }}
-                >
-                  قیمت کل: {Math.floor(order.total_price).toLocaleString()}{" "}
-                  هزار تومان
-                </Typography>
-              </CardContent>
+          orders.map((order, index) => {
+            // ✅ معیار درست شما: اگر ریویو برای این order_id ثبت شده باشد
+            const review = reviewsMap?.[String(order.order_id)] || null;
 
-              {/* CARD ACTIONS */}
-              <CardActions
+            return (
+              <Card
+                key={order.id ?? order.order_id ?? index}
                 sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: 1,
+                  width: { xs: "92%", sm: "80%", md: "85%" },
+                  bgcolor: "#e8e9d6",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  p: 2,
                 }}
               >
-                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                  {order.state === "completed" ? (
-                    <Button
-                      variant="contained"
-                      disabled
-                      sx={{ bgcolor: "#355f4a", color: "white", minWidth: 120 }}
-                    >
-                      تحویل شده
-                    </Button>
-                  ) : (
+                {/* CARD CONTENT */}
+                <CardContent>
+                  <Typography
+                    sx={{
+                      fontSize: "1.1rem",
+                      fontWeight: "bold",
+                      color: "#12372A",
+                    }}
+                  >
+                    سفارش شماره {order.order_id}
+                  </Typography>
+
+                  <Typography
+                    sx={{ mt: 1, fontWeight: "bold", color: "#12372A" }}
+                  >
+                    {order.restaurant_name}
+                  </Typography>
+
+                  <Typography sx={{ mt: 1, color: "#333" }}>
+                    {order.description}
+                  </Typography>
+
+                  <Typography sx={{ mt: 2, color: "#555" }}>
+                    تاریخ سفارش:{" "}
+                    {moment(order.order_date).format("jYYYY/jMM/jDD")} -{" "}
+                    {moment(order.order_date).format("HH:mm")}
+                  </Typography>
+
+                  <Typography sx={{ mt: 1, color: "#555" }}>
+                    آدرس: {order.address}
+                  </Typography>
+
+                  <Typography sx={{ mt: 1, color: "#555" }}>
+                    روش ارسال: {deliveryMethodMap[order.delivery_method] ?? "-"}
+                  </Typography>
+
+                  <Typography sx={{ mt: 1, color: "#555" }}>
+                    روش پرداخت: {paymentMethodMap[order.payment_method] ?? "-"}
+                  </Typography>
+
+                  <Typography
+                    sx={{ mt: 2, fontWeight: "bold", color: "#12372A" }}
+                  >
+                    قیمت کل: {Math.floor(order.total_price).toLocaleString()}{" "}
+                    هزار تومان
+                  </Typography>
+                </CardContent>
+
+                {/* CARD ACTIONS */}
+                <CardActions
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 1,
+                  }}
+                >
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {order.state === "completed" ? (
+                      <Button
+                        variant="contained"
+                        disabled
+                        sx={{
+                          bgcolor: "#355f4a",
+                          color: "white",
+                          minWidth: 120,
+                        }}
+                      >
+                        تحویل شده
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        sx={{
+                          bgcolor: "#0f3924",
+                          "&:hover": { bgcolor: "#12372A" },
+                          minWidth: 120,
+                        }}
+                        onClick={() =>
+                          navigate(
+                            `/customer/orders/${order.order_id}/track-order`
+                          )
+                        }
+                      >
+                        پیگیری سفارش
+                      </Button>
+                    )}
+
                     <Button
                       variant="contained"
                       sx={{
@@ -193,96 +226,81 @@ const MyOrders = () => {
                         minWidth: 120,
                       }}
                       onClick={() =>
-                        navigate(
-                          `/customer/orders/${order.order_id}/track-order`
-                        )
+                        navigate(`/customer/restaurants/${order.restaurant}`)
                       }
                     >
-                      پیگیری سفارش
+                      سفارش مجدد
                     </Button>
-                  )}
+
+                    {/* ✅ اگر ریویو هست، ثبت نظر نیاد و امتیاز نمایش داده بشه */}
+                    {order.state === "completed" && (
+                      <>
+                        {review ? (
+                          <Button
+                            variant="contained"
+                            disabled
+                            sx={{
+                              bgcolor: "#0f3924",
+                              "&:hover": { bgcolor: "#12372A" },
+                              minWidth: 140,
+                            }}
+                          >
+                            امتیاز شما: {review.score} ⭐
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            sx={{
+                              bgcolor: "#0f3924",
+                              "&:hover": { bgcolor: "#12372A" },
+                              minWidth: 120,
+                            }}
+                            onClick={() =>
+                              navigate(
+                                `/customer/orders/${order.order_id}/review`
+                              )
+                            }
+                          >
+                            ثبت نظر
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </Box>
 
                   <Button
-                    variant="contained"
                     sx={{
                       bgcolor: "#0f3924",
+                      color: "white",
                       "&:hover": { bgcolor: "#12372A" },
-                      minWidth: 120,
+                      minWidth: 40,
                     }}
-                    onClick={() =>
-                      navigate(`/customer/restaurants/${order.restaurant}`)
-                    }
+                    onClick={() => handleCollapseToggle(index)}
                   >
-                    سفارش مجدد
+                    <ExpandMoreIcon />
                   </Button>
+                </CardActions>
 
-                  {order.state === "completed" && (
-                    <>
-                      {reviewsMap[order.order_id] ? (
-                        <Button
-                          variant="contained"
-                          disabled
-                          sx={{
-                            bgcolor: "#0f3924",
-                            "&:hover": { bgcolor: "#12372A" },
-                            minWidth: 120,
-                          }}
-                        >
-                          امتیاز شما: {reviewsMap[order.order_id].score} ⭐
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          sx={{
-                            bgcolor: "#0f3924",
-                            "&:hover": { bgcolor: "#12372A" },
-                            minWidth: 120,
-                          }}
-                          onClick={() =>
-                            navigate(
-                              `/customer/orders/${order.order_id}/review`
-                            )
-                          }
-                        >
-                          ثبت نظر
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </Box>
-
-                <Button
-                  sx={{
-                    bgcolor: "#0f3924",
-                    color: "white",
-                    "&:hover": { bgcolor: "#12372A" },
-                    minWidth: 40,
-                  }}
-                  onClick={() => handleCollapseToggle(index)}
-                >
-                  <ExpandMoreIcon />
-                </Button>
-              </CardActions>
-
-              {/* COLLAPSE SECTION */}
-              <Collapse in={openIndex === index}>
-                <CardContent>
-                  <Typography sx={{ fontWeight: "bold", mb: 1 }}>
-                    آیتم‌های سفارش:
-                  </Typography>
-                  <List>
-                    {order.order_items.map((item, idx) => (
-                      <ListItem key={idx} sx={{ px: 0 }}>
-                        <ListItemText
-                          primary={`${item.name} - تعداد: ${item.count}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </CardContent>
-              </Collapse>
-            </Card>
-          ))
+                {/* COLLAPSE SECTION */}
+                <Collapse in={openIndex === index}>
+                  <CardContent>
+                    <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                      آیتم‌های سفارش:
+                    </Typography>
+                    <List>
+                      {order.order_items?.map((item, idx) => (
+                        <ListItem key={idx} sx={{ px: 0 }}>
+                          <ListItemText
+                            primary={`${item.name} - تعداد: ${item.count}`}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </CardContent>
+                </Collapse>
+              </Card>
+            );
+          })
         )}
       </Grid>
     </Box>
